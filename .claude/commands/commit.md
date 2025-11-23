@@ -22,7 +22,6 @@ Analyze the changes in the working directory and create appropriate git commits.
 4. Use only staged changes for commit
 5. Avoid mixing unrelated changes in the same commit
 6. Commit short summary and body must be in Korean (scope must be in English because it would be package name or directory name)
-7. Do not co-author commits (Claude)
 
 **Steps:**
 

@@ -35,7 +35,7 @@ export default function Home() {
               <ul className="space-y-2 text-gray-600">
                 <li className="flex items-start">
                   <span className="mr-2">✨</span>
-                  <span>8가지 프리셋 효과 (default, explosion, stars, snow 등)</span>
+                  <span>8가지 프리셋 효과 (celebration, explosion, stars, snow 등)</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2">🎨</span>

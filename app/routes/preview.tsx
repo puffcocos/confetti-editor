@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Route } from './+types/preview'
-import { Confetti, confettiPresets } from '../components/confetti'
+import { confettiPresets } from '../components/confetti'
 import { useConfetti } from '../components/use-confetti'
 import type { Options as ConfettiOptions } from 'canvas-confetti'
 
@@ -13,7 +13,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Preview() {
   const fire = useConfetti()
-  const [selectedPreset, setSelectedPreset] = useState<string>('default')
+  const [selectedPreset, setSelectedPreset] = useState<string>('celebration')
 
   // 커스텀 옵션 상태
   const [particleCount, setParticleCount] = useState(100)
@@ -34,6 +34,15 @@ export default function Preview() {
 
   // 모양 옵션
   const [shapes, setShapes] = useState<string[]>(['square', 'circle'])
+
+  // 커스텀 프리셋 저장
+  interface CustomPreset {
+    name: string
+    options: ConfettiOptions[]
+  }
+  const [customPresets, setCustomPresets] = useState<CustomPreset[]>([])
+  const [presetName, setPresetName] = useState('')
+  const [presetOptions, setPresetOptions] = useState<ConfettiOptions[]>([]) // 프리셋에 추가할 옵션들
 
   // 색상 프리셋
   const colorPresets = {
@@ -102,52 +111,55 @@ export default function Preview() {
     fire(currentOptions)
   }
 
-  // 특수 효과들
-  const fireRealisticLook = () => {
-    const count = 200
-    const defaults = { origin: { y: 0.7 } }
-
-    fire({
-      ...defaults,
-      particleCount: Math.floor(count * 0.25),
-      spread: 26,
-      startVelocity: 55,
-    })
-
-    fire({
-      ...defaults,
-      particleCount: Math.floor(count * 0.2),
-      spread: 60,
-    })
-
-    fire({
-      ...defaults,
-      particleCount: Math.floor(count * 0.35),
-      spread: 100,
-      decay: 0.91,
-      scalar: 0.8,
-    })
-
-    fire({
-      ...defaults,
-      particleCount: Math.floor(count * 0.1),
-      spread: 120,
-      startVelocity: 25,
-      decay: 0.92,
-      scalar: 1.2,
-    })
-
-    fire({
-      ...defaults,
-      particleCount: Math.floor(count * 0.1),
-      spread: 120,
-      startVelocity: 45,
-    })
+  // 프리셋에 현재 옵션 추가
+  const addToPreset = () => {
+    setPresetOptions([...presetOptions, currentOptions])
   }
 
-  const fireFromSides = () => {
-    // confettiPresets.sides는 이미 배열 형태로 양쪽 효과를 포함
-    fire(confettiPresets.sides)
+  // 프리셋에서 옵션 제거
+  const removeFromPreset = (index: number) => {
+    setPresetOptions(presetOptions.filter((_, i) => i !== index))
+  }
+
+  // 커스텀 프리셋 저장
+  const saveCustomPreset = () => {
+    if (!presetName.trim()) {
+      alert('프리셋 이름을 입력해주세요')
+      return
+    }
+
+    if (presetOptions.length === 0) {
+      alert('최소 1개 이상의 옵션을 추가해주세요')
+      return
+    }
+
+    const newPreset: CustomPreset = {
+      name: presetName,
+      options: presetOptions,
+    }
+
+    setCustomPresets([...customPresets, newPreset])
+    setPresetName('')
+    setPresetOptions([])
+    alert(`"${presetName}" 프리셋이 저장되었습니다! (${presetOptions.length}개 효과)`)
+  }
+
+  // 커스텀 프리셋 실행
+  const fireCustomPreset = (preset: CustomPreset) => {
+    fire(preset.options)
+  }
+
+  // 커스텀 프리셋 삭제
+  const deleteCustomPreset = (index: number) => {
+    setCustomPresets(customPresets.filter((_, i) => i !== index))
+  }
+
+  // 코드 미리보기 생성
+  const generateCodePreview = () => {
+    if (presetOptions.length === 0) {
+      return `fire(${JSON.stringify(currentOptions, null, 2)})`
+    }
+    return `fire(${JSON.stringify(presetOptions, null, 2)})`
   }
 
   return (
@@ -179,33 +191,104 @@ export default function Preview() {
               </div>
             </div>
 
-            {/* 특수 효과 */}
+            {/* 커스텀 프리셋 */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">특수 효과</h2>
-              <div className="space-y-3">
-                <button
-                  onClick={fireRealisticLook}
-                  className="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-medium hover:from-pink-600 hover:to-purple-600 transition-all shadow-lg"
-                >
-                  🎉 현실적인 폭죽
-                </button>
-                <button
-                  onClick={fireFromSides}
-                  className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-cyan-600 transition-all shadow-lg"
-                >
-                  ↔️ 양쪽에서 발사
-                </button>
-              </div>
-            </div>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">커스텀 프리셋</h2>
 
-            {/* Confetti 컴포넌트 예제 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Confetti 컴포넌트</h2>
-              <Confetti options={confettiPresets.default} className="cursor-pointer">
-                <div className="w-full px-6 py-8 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg font-bold text-center text-xl hover:from-green-500 hover:to-blue-600 transition-all shadow-lg">
-                  클릭하면 Confetti 발사! 🎊
+              {/* 프리셋 구성 중 */}
+              <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-sm font-medium text-blue-900">
+                    프리셋 구성 ({presetOptions.length}개 효과)
+                  </label>
+                  <button
+                    onClick={addToPreset}
+                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-xs font-medium"
+                  >
+                    + 현재 옵션 추가
+                  </button>
                 </div>
-              </Confetti>
+
+                {/* 추가된 옵션들 */}
+                {presetOptions.length > 0 && (
+                  <div className="space-y-2 mb-3">
+                    {presetOptions.map((option, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 p-2 bg-white rounded border border-blue-300"
+                      >
+                        <span className="flex-1 text-xs text-gray-700 font-mono truncate">
+                          효과 {index + 1}: {option.particleCount}개 파티클, {option.spread}° 퍼짐
+                        </span>
+                        <button
+                          onClick={() => removeFromPreset(index)}
+                          className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs"
+                        >
+                          제거
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {presetOptions.length === 0 && (
+                  <p className="text-xs text-blue-600 mb-3">
+                    오른쪽의 커스텀 옵션을 조절한 후 "+ 현재 옵션 추가" 버튼을 눌러 효과를 추가하세요
+                  </p>
+                )}
+
+                {/* 프리셋 저장 */}
+                <div className="flex gap-2 pt-3 border-t border-blue-200">
+                  <input
+                    type="text"
+                    value={presetName}
+                    onChange={(e) => setPresetName(e.target.value)}
+                    placeholder="프리셋 이름 입력"
+                    className="flex-1 px-3 py-2 border border-blue-300 rounded text-sm text-gray-800"
+                  />
+                  <button
+                    onClick={saveCustomPreset}
+                    disabled={presetOptions.length === 0}
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    저장
+                  </button>
+                </div>
+              </div>
+
+              {/* 저장된 프리셋 목록 */}
+              {customPresets.length > 0 && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    저장된 프리셋
+                  </label>
+                  {customPresets.map((preset, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <button
+                        onClick={() => fireCustomPreset(preset)}
+                        className="flex-1 text-left px-3 py-2 bg-purple-100 text-purple-800 rounded hover:bg-purple-200 transition-colors font-medium text-sm"
+                      >
+                        {preset.name} <span className="text-xs text-purple-600">({preset.options.length}개 효과)</span>
+                      </button>
+                      <button
+                        onClick={() => deleteCustomPreset(index)}
+                        className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm font-medium"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {customPresets.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">
+                  저장된 커스텀 프리셋이 없습니다
+                </p>
+              )}
             </div>
           </div>
 
@@ -493,12 +576,17 @@ export default function Preview() {
               🎨 커스텀 옵션으로 발사!
             </button>
 
-            {/* 현재 옵션 표시 */}
+            {/* 코드 미리보기 */}
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">현재 설정값</h3>
-              <pre className="text-xs text-gray-600 overflow-x-auto">
-                {JSON.stringify(currentOptions, null, 2)}
-              </pre>
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">코드 미리보기</h3>
+              <div className="bg-gray-900 rounded p-4 overflow-x-auto">
+                <pre className="text-xs text-green-400 font-mono">
+                  <code>{generateCodePreview()}</code>
+                </pre>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                useConfetti 훅을 사용하여 위 코드로 confetti를 발사할 수 있습니다
+              </p>
             </div>
           </div>
         </div>

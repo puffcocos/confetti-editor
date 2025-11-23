@@ -6,13 +6,40 @@ import type { Options as ConfettiOptions } from 'canvas-confetti'
  */
 export const confettiPresets = {
   /**
-   * 기본 confetti
+   * 축하 효과 (현실적인 폭죽)
    */
-  default: [
+  celebration: [
     {
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
+      particleCount: 50,
+      spread: 26,
+      startVelocity: 55,
+      origin: { y: 0.7 },
+    },
+    {
+      particleCount: 40,
+      spread: 60,
+      origin: { y: 0.7 },
+    },
+    {
+      particleCount: 70,
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+      origin: { y: 0.7 },
+    },
+    {
+      particleCount: 20,
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+      origin: { y: 0.7 },
+    },
+    {
+      particleCount: 20,
+      spread: 120,
+      startVelocity: 45,
+      origin: { y: 0.7 },
     },
   ] as ConfettiOptions[],
 

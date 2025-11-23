@@ -14,6 +14,7 @@ export const DEFAULT_VALUES = {
   originY: 0.6,
   angle: 90,
   scalar: 1,
+  drift: 0,
 } as const
 
 /**
@@ -83,6 +84,13 @@ export const OPTION_INFO: Record<string, OptionInfo> = {
     description: '파티클의 크기 배율 (1 = 기본 크기)',
     min: 0.1,
     max: 3,
+    step: 0.1,
+  },
+  drift: {
+    label: '좌우 흔들림',
+    description: '파티클의 좌우 흔들림 정도 (0 = 흔들림 없음)',
+    min: -1,
+    max: 1,
     step: 0.1,
   },
 } as const

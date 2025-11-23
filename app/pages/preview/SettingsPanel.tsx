@@ -14,6 +14,7 @@ interface SettingsPanelProps {
   originY: number
   angle: number
   scalar: number
+  drift: number
   useCustomColors: boolean
   customColors: string[]
   colorInput: string
@@ -44,6 +45,7 @@ interface SettingsPanelProps {
   onOriginYChange: (value: number) => void
   onAngleChange: (value: number) => void
   onScalarChange: (value: number) => void
+  onDriftChange: (value: number) => void
   onUseCustomColorsChange: (value: boolean) => void
   onCustomColorsChange: (colors: string[]) => void
   onColorInputChange: (value: string) => void
@@ -76,6 +78,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
     originY,
     angle,
     scalar,
+    drift,
     useCustomColors,
     customColors,
     colorInput,
@@ -98,6 +101,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
     onOriginYChange,
     onAngleChange,
     onScalarChange,
+    onDriftChange,
     onUseCustomColorsChange,
     onCustomColorsChange,
     onColorInputChange,
@@ -308,6 +312,19 @@ export function SettingsPanel(props: SettingsPanelProps) {
           onChange={onScalarChange}
           decimal={1}
           unit="x"
+        />
+
+        {/* Drift */}
+        <OptionSlider
+          label={OPTION_INFO.drift.label}
+          value={drift}
+          defaultValue={DEFAULT_VALUES.drift}
+          description={OPTION_INFO.drift.description}
+          min={OPTION_INFO.drift.min}
+          max={OPTION_INFO.drift.max}
+          step={OPTION_INFO.drift.step}
+          onChange={onDriftChange}
+          decimal={1}
         />
 
         {/* 색상 옵션 */}

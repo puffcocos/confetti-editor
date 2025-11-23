@@ -26,6 +26,7 @@ export function PreviewPage() {
   const [originY, setOriginY] = useState<number>(DEFAULT_VALUES.originY)
   const [angle, setAngle] = useState<number>(DEFAULT_VALUES.angle)
   const [scalar, setScalar] = useState<number>(DEFAULT_VALUES.scalar)
+  const [drift, setDrift] = useState<number>(DEFAULT_VALUES.drift)
 
   // 색상 옵션
   const [useCustomColors, setUseCustomColors] = useState(false)
@@ -63,6 +64,7 @@ export function PreviewPage() {
     origin: { x: originX, y: originY },
     angle,
     scalar,
+    drift,
     ...(useCustomColors && customColors.length > 0 ? { colors: customColors } : {}),
     ...(shapes.length > 0 ? { shapes: shapes as any } : {}),
   }
@@ -79,6 +81,7 @@ export function PreviewPage() {
     setOriginY(DEFAULT_VALUES.originY)
     setAngle(DEFAULT_VALUES.angle)
     setScalar(DEFAULT_VALUES.scalar)
+    setDrift(DEFAULT_VALUES.drift)
     setUseCustomColors(false)
     setCustomColors(['#ff0000', '#00ff00', '#0000ff'])
     setShapes(['square', 'circle'])
@@ -139,6 +142,19 @@ export function PreviewPage() {
     setCustomPresets(customPresets.filter((_, i) => i !== index))
   }
 
+  // 저장된 프리셋에 효과 추가
+  const addEffectToSavedPreset = (presetIndex: number) => {
+    const updatedPresets = [...customPresets]
+    updatedPresets[presetIndex].options = [
+      ...updatedPresets[presetIndex].options,
+      currentOptions,
+    ]
+    setCustomPresets(updatedPresets)
+    alert(
+      `"${customPresets[presetIndex].name}" 프리셋에 효과가 추가되었습니다! (총 ${updatedPresets[presetIndex].options.length}개 효과)`
+    )
+  }
+
   // 기본 프리셋 복사
   const copyPresetToCustom = (presetName: string) => {
     const preset = confettiPresets[presetName as keyof typeof confettiPresets]
@@ -180,6 +196,7 @@ export function PreviewPage() {
     setOriginY(effect.origin?.y ?? DEFAULT_VALUES.originY)
     setAngle(effect.angle ?? DEFAULT_VALUES.angle)
     setScalar(effect.scalar ?? DEFAULT_VALUES.scalar)
+    setDrift(effect.drift ?? DEFAULT_VALUES.drift)
 
     if (effect.colors && effect.colors.length > 0) {
       setCustomColors(effect.colors)
@@ -275,6 +292,7 @@ export function PreviewPage() {
               onFireCustomPreset={fireCustomPreset}
               onDeleteCustomPreset={deleteCustomPreset}
               onLoadEffectToSettings={loadEffectToSettings}
+              onAddEffectToSavedPreset={addEffectToSavedPreset}
               onCopyToClipboard={copyToClipboard}
               copiedPresetIndex={copiedPresetIndex}
             />
@@ -292,6 +310,7 @@ export function PreviewPage() {
             originY={originY}
             angle={angle}
             scalar={scalar}
+            drift={drift}
             useCustomColors={useCustomColors}
             customColors={customColors}
             colorInput={colorInput}
@@ -314,6 +333,7 @@ export function PreviewPage() {
             onOriginYChange={setOriginY}
             onAngleChange={setAngle}
             onScalarChange={setScalar}
+            onDriftChange={setDrift}
             onUseCustomColorsChange={setUseCustomColors}
             onCustomColorsChange={setCustomColors}
             onColorInputChange={setColorInput}

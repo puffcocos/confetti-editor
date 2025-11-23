@@ -15,6 +15,7 @@ interface CustomPresetSectionProps {
   onFireCustomPreset: (preset: CustomPreset) => void
   onDeleteCustomPreset: (index: number) => void
   onLoadEffectToSettings: (presetIndex: number, effectIndex: number) => void
+  onAddEffectToSavedPreset: (presetIndex: number) => void
   onCopyToClipboard: (text: string, type: 'main' | number) => Promise<void>
   copiedPresetIndex: number | null
 }
@@ -35,6 +36,7 @@ export function CustomPresetSection({
   onFireCustomPreset,
   onDeleteCustomPreset,
   onLoadEffectToSettings,
+  onAddEffectToSavedPreset,
   onCopyToClipboard,
   copiedPresetIndex,
 }: CustomPresetSectionProps) {
@@ -164,9 +166,18 @@ export function CustomPresetSection({
               {/* 효과 목록 및 수정 */}
               <div className="px-3 pb-3">
                 <div className="border-t border-gray-200 pt-3">
-                  <label className="block text-xs font-medium text-gray-700 mb-2">
-                    효과 목록 ({preset.options.length}개)
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-medium text-gray-700">
+                      효과 목록 ({preset.options.length}개)
+                    </label>
+                    <button
+                      onClick={() => onAddEffectToSavedPreset(index)}
+                      className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs font-medium"
+                      title="현재 우측 설정 메뉴의 옵션을 이 프리셋에 추가합니다"
+                    >
+                      + 효과 추가
+                    </button>
+                  </div>
                   <div className="space-y-2">
                     {preset.options.map((option, effectIndex) => (
                       <div

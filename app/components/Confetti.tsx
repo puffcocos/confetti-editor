@@ -2,6 +2,8 @@ import { useCallback, useRef } from 'react'
 import confetti from 'canvas-confetti'
 import type { Options as ConfettiOptions } from 'canvas-confetti'
 
+export { confettiPresets } from './presets'
+
 /**
  * Confetti 컴포넌트의 Props 타입
  */
@@ -14,9 +16,11 @@ export interface ConfettiProps {
 
   /**
    * canvas-confetti 커스터마이징 옵션
+   * 단일 옵션 또는 배열 형태로 제공 가능
+   * 배열인 경우 순차적으로 모든 효과가 발사됩니다
    * @see https://github.com/catdad/canvas-confetti
    */
-  options?: ConfettiOptions
+  options?: ConfettiOptions | ConfettiOptions[]
 
   /**
    * 자동으로 confetti를 실행할지 여부
@@ -86,7 +90,14 @@ export function Confetti({
    */
   const fireConfetti = useCallback(() => {
     onBeforeFire?.()
-    confetti(options)
+
+    // 배열인 경우 모든 효과를 순차적으로 발사
+    if (Array.isArray(options)) {
+      options.forEach((option) => confetti(option))
+    } else {
+      confetti(options)
+    }
+
     onAfterFire?.()
   }, [options, onBeforeFire, onAfterFire])
 
@@ -112,122 +123,3 @@ export function Confetti({
     </div>
   )
 }
-
-/**
- * useConfetti Hook
- *
- * @description
- * confetti를 프로그래밍 방식으로 제어할 수 있는 훅입니다.
- *
- * @example
- * ```tsx
- * function MyComponent() {
- *   const fire = useConfetti();
- *
- *   const handleSuccess = () => {
- *     fire({ particleCount: 100, spread: 70 });
- *   };
- *
- *   return <button onClick={handleSuccess}>성공!</button>;
- * }
- * ```
- */
-export function useConfetti() {
-  return useCallback((options?: ConfettiOptions) => {
-    confetti(options || {})
-  }, [])
-}
-
-/**
- * 미리 정의된 confetti 프리셋
- */
-export const confettiPresets = {
-  /**
-   * 기본 confetti
-   */
-  default: {
-    particleCount: 100,
-    spread: 70,
-    origin: { y: 0.6 },
-  } as ConfettiOptions,
-
-  /**
-   * 폭발 효과
-   */
-  explosion: {
-    particleCount: 150,
-    spread: 180,
-    origin: { y: 0.5 },
-    startVelocity: 45,
-  } as ConfettiOptions,
-
-  /**
-   * 별 효과
-   */
-  stars: {
-    particleCount: 50,
-    spread: 360,
-    ticks: 100,
-    gravity: 0,
-    decay: 0.94,
-    startVelocity: 30,
-    shapes: ['star'],
-    colors: ['FFE400', 'FFBD00', 'E89400', 'FFCA6C', 'FDFFB8'],
-  } as ConfettiOptions,
-
-  /**
-   * 눈 효과
-   */
-  snow: {
-    particleCount: 200,
-    spread: 180,
-    origin: { y: -0.1 },
-    startVelocity: 0,
-    ticks: 300,
-    gravity: 0.5,
-    colors: ['#ffffff'],
-  } as ConfettiOptions,
-
-  /**
-   * 불꽃놀이 효과
-   */
-  fireworks: {
-    particleCount: 100,
-    spread: 360,
-    ticks: 100,
-    gravity: 1,
-    decay: 0.94,
-    startVelocity: 30,
-  } as ConfettiOptions,
-
-  /**
-   * 양쪽에서 발사
-   */
-  sides: {
-    particleCount: 50,
-    angle: 60,
-    spread: 55,
-    origin: { x: 0 },
-  } as ConfettiOptions,
-
-  /**
-   * 학교 졸업식 스타일
-   */
-  school: {
-    particleCount: 100,
-    spread: 26,
-    startVelocity: 55,
-  } as ConfettiOptions,
-
-  /**
-   * 랜덤 방향
-   */
-  random: {
-    particleCount: 100,
-    spread: 360,
-    ticks: 50,
-    gravity: 0,
-    decay: 0.94,
-    startVelocity: 30,
-  } as ConfettiOptions,
-} as const

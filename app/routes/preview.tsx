@@ -1,38 +1,39 @@
-import { useState } from "react";
-import type { Route } from "./+types/preview";
-import { Confetti, confettiPresets, useConfetti } from "../components/Confetti";
-import type { Options as ConfettiOptions } from "canvas-confetti";
+import { useState } from 'react'
+import type { Route } from './+types/preview'
+import { Confetti, confettiPresets } from '../components/confetti'
+import { useConfetti } from '../components/use-confetti'
+import type { Options as ConfettiOptions } from 'canvas-confetti'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Confetti Preview - 미리보기" },
-    { name: "description", content: "Confetti 효과를 실시간으로 테스트해보세요" },
-  ];
+    { title: 'Confetti Preview - 미리보기' },
+    { name: 'description', content: 'Confetti 효과를 실시간으로 테스트해보세요' },
+  ]
 }
 
 export default function Preview() {
-  const fire = useConfetti();
-  const [selectedPreset, setSelectedPreset] = useState<string>("default");
+  const fire = useConfetti()
+  const [selectedPreset, setSelectedPreset] = useState<string>('default')
 
   // 커스텀 옵션 상태
-  const [particleCount, setParticleCount] = useState(100);
-  const [spread, setSpread] = useState(70);
-  const [startVelocity, setStartVelocity] = useState(45);
-  const [decay, setDecay] = useState(0.9);
-  const [gravity, setGravity] = useState(1);
-  const [ticks, setTicks] = useState(200);
-  const [originX, setOriginX] = useState(0.5);
-  const [originY, setOriginY] = useState(0.6);
-  const [angle, setAngle] = useState(90);
-  const [scalar, setScalar] = useState(1);
+  const [particleCount, setParticleCount] = useState(100)
+  const [spread, setSpread] = useState(70)
+  const [startVelocity, setStartVelocity] = useState(45)
+  const [decay, setDecay] = useState(0.9)
+  const [gravity, setGravity] = useState(1)
+  const [ticks, setTicks] = useState(200)
+  const [originX, setOriginX] = useState(0.5)
+  const [originY, setOriginY] = useState(0.6)
+  const [angle, setAngle] = useState(90)
+  const [scalar, setScalar] = useState(1)
 
   // 색상 옵션
-  const [useCustomColors, setUseCustomColors] = useState(false);
-  const [customColors, setCustomColors] = useState<string[]>(['#ff0000', '#00ff00', '#0000ff']);
-  const [colorInput, setColorInput] = useState('#ff0000');
+  const [useCustomColors, setUseCustomColors] = useState(false)
+  const [customColors, setCustomColors] = useState<string[]>(['#ff0000', '#00ff00', '#0000ff'])
+  const [colorInput, setColorInput] = useState('#ff0000')
 
   // 모양 옵션
-  const [shapes, setShapes] = useState<string[]>(['square', 'circle']);
+  const [shapes, setShapes] = useState<string[]>(['square', 'circle'])
 
   // 색상 프리셋
   const colorPresets = {
@@ -44,7 +45,7 @@ export default function Preview() {
     forest: ['#228B22', '#32CD32', '#90EE90', '#98FB98', '#00FF00'],
     purple: ['#9370DB', '#8A2BE2', '#9932CC', '#BA55D3', '#DA70D6'],
     sunset: ['#FF6B6B', '#FFA07A', '#FFD93D', '#6BCF7F', '#4ECDC4'],
-  };
+  }
 
   // 현재 옵션 조합
   const currentOptions: ConfettiOptions = {
@@ -59,65 +60,65 @@ export default function Preview() {
     scalar,
     ...(useCustomColors && customColors.length > 0 ? { colors: customColors } : {}),
     ...(shapes.length > 0 ? { shapes: shapes as any } : {}),
-  };
+  }
 
   // 색상 추가
   const addColor = () => {
     if (colorInput && !customColors.includes(colorInput)) {
-      setCustomColors([...customColors, colorInput]);
+      setCustomColors([...customColors, colorInput])
     }
-  };
+  }
 
   // 색상 제거
   const removeColor = (color: string) => {
-    setCustomColors(customColors.filter(c => c !== color));
-  };
+    setCustomColors(customColors.filter((c) => c !== color))
+  }
 
   // 색상 프리셋 적용
   const applyColorPreset = (presetName: string) => {
-    const preset = colorPresets[presetName as keyof typeof colorPresets];
-    setCustomColors(preset);
-    setUseCustomColors(true);
-  };
+    const preset = colorPresets[presetName as keyof typeof colorPresets]
+    setCustomColors(preset)
+    setUseCustomColors(true)
+  }
 
   // 모양 토글
   const toggleShape = (shape: string) => {
     if (shapes.includes(shape)) {
-      setShapes(shapes.filter(s => s !== shape));
+      setShapes(shapes.filter((s) => s !== shape))
     } else {
-      setShapes([...shapes, shape]);
+      setShapes([...shapes, shape])
     }
-  };
+  }
 
   // 프리셋 실행
   const firePreset = (presetName: string) => {
-    setSelectedPreset(presetName);
-    const preset = confettiPresets[presetName as keyof typeof confettiPresets];
-    fire(preset);
-  };
+    setSelectedPreset(presetName)
+    const preset = confettiPresets[presetName as keyof typeof confettiPresets]
+    fire(preset)
+  }
 
   // 커스텀 옵션으로 실행
   const fireCustom = () => {
-    fire(currentOptions);
-  };
+    fire(currentOptions)
+  }
 
   // 특수 효과들
   const fireRealisticLook = () => {
-    const count = 200;
-    const defaults = { origin: { y: 0.7 } };
+    const count = 200
+    const defaults = { origin: { y: 0.7 } }
 
     fire({
       ...defaults,
       particleCount: Math.floor(count * 0.25),
       spread: 26,
       startVelocity: 55,
-    });
+    })
 
     fire({
       ...defaults,
       particleCount: Math.floor(count * 0.2),
       spread: 60,
-    });
+    })
 
     fire({
       ...defaults,
@@ -125,7 +126,7 @@ export default function Preview() {
       spread: 100,
       decay: 0.91,
       scalar: 0.8,
-    });
+    })
 
     fire({
       ...defaults,
@@ -134,44 +135,33 @@ export default function Preview() {
       startVelocity: 25,
       decay: 0.92,
       scalar: 1.2,
-    });
+    })
 
     fire({
       ...defaults,
       particleCount: Math.floor(count * 0.1),
       spread: 120,
       startVelocity: 45,
-    });
-  };
+    })
+  }
 
   const fireFromSides = () => {
-    fire({
-      ...confettiPresets.sides,
-      origin: { x: 0, y: 0.6 },
-    });
-    fire({
-      ...confettiPresets.sides,
-      origin: { x: 1, y: 0.6 },
-      angle: 120,
-    });
-  };
+    // confettiPresets.sides는 이미 배열 형태로 양쪽 효과를 포함
+    fire(confettiPresets.sides)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-gray-800 mb-2">Confetti 미리보기</h1>
-        <p className="text-gray-600 mb-8">
-          다양한 옵션을 조절하며 confetti 효과를 테스트해보세요
-        </p>
+        <p className="text-gray-600 mb-8">다양한 옵션을 조절하며 confetti 효과를 테스트해보세요</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* 왼쪽: 프리셋 & 특수 효과 */}
           <div className="space-y-6">
             {/* 프리셋 */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                프리셋 효과
-              </h2>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">프리셋 효과</h2>
               <div className="grid grid-cols-2 gap-3">
                 {Object.keys(confettiPresets).map((presetName) => (
                   <button
@@ -179,8 +169,8 @@ export default function Preview() {
                     onClick={() => firePreset(presetName)}
                     className={`px-4 py-3 rounded-lg font-medium transition-all ${
                       selectedPreset === presetName
-                        ? "bg-purple-600 text-white shadow-lg"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
                     {presetName}
@@ -191,9 +181,7 @@ export default function Preview() {
 
             {/* 특수 효과 */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                특수 효과
-              </h2>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">특수 효과</h2>
               <div className="space-y-3">
                 <button
                   onClick={fireRealisticLook}
@@ -212,13 +200,8 @@ export default function Preview() {
 
             {/* Confetti 컴포넌트 예제 */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                Confetti 컴포넌트
-              </h2>
-              <Confetti
-                options={confettiPresets.default}
-                className="cursor-pointer"
-              >
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Confetti 컴포넌트</h2>
+              <Confetti options={confettiPresets.default} className="cursor-pointer">
                 <div className="w-full px-6 py-8 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg font-bold text-center text-xl hover:from-green-500 hover:to-blue-600 transition-all shadow-lg">
                   클릭하면 Confetti 발사! 🎊
                 </div>
@@ -228,9 +211,7 @@ export default function Preview() {
 
           {/* 오른쪽: 커스텀 옵션 */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              커스텀 옵션
-            </h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">커스텀 옵션</h2>
 
             <div className="space-y-4 mb-6">
               {/* Particle Count */}
@@ -391,18 +372,14 @@ export default function Preview() {
               {/* 색상 옵션 */}
               <div className="pt-4 border-t border-gray-200">
                 <div className="flex items-center justify-between mb-3">
-                  <label className="text-sm font-medium text-gray-700">
-                    커스텀 색상 사용
-                  </label>
+                  <label className="text-sm font-medium text-gray-700">커스텀 색상 사용</label>
                   <button
                     onClick={() => setUseCustomColors(!useCustomColors)}
                     className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                      useCustomColors
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-200 text-gray-700"
+                      useCustomColors ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'
                     }`}
                   >
-                    {useCustomColors ? "ON" : "OFF"}
+                    {useCustomColors ? 'ON' : 'OFF'}
                   </button>
                 </div>
 
@@ -486,9 +463,7 @@ export default function Preview() {
 
               {/* 모양 옵션 */}
               <div className="pt-4 border-t border-gray-200">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  파티클 모양
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">파티클 모양</label>
                 <div className="flex gap-2">
                   {['circle', 'square', 'star'].map((shape) => (
                     <button
@@ -496,8 +471,8 @@ export default function Preview() {
                       onClick={() => toggleShape(shape)}
                       className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
                         shapes.includes(shape)
-                          ? "bg-purple-600 text-white"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                       }`}
                     >
                       {shape === 'circle' && '●'}
@@ -520,9 +495,7 @@ export default function Preview() {
 
             {/* 현재 옵션 표시 */}
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                현재 설정값
-              </h3>
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">현재 설정값</h3>
               <pre className="text-xs text-gray-600 overflow-x-auto">
                 {JSON.stringify(currentOptions, null, 2)}
               </pre>
@@ -532,9 +505,7 @@ export default function Preview() {
 
         {/* 하단: 문서 링크 */}
         <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-3">
-            더 많은 옵션 알아보기
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-3">더 많은 옵션 알아보기</h2>
           <p className="text-gray-600 mb-3">
             canvas-confetti는 더 많은 커스터마이징 옵션을 제공합니다.
           </p>
@@ -549,5 +520,5 @@ export default function Preview() {
         </div>
       </div>
     </div>
-  );
+  )
 }

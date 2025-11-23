@@ -1,4 +1,4 @@
-import { confettiPresets } from '~/components/confetti'
+import { confettiPresets } from '~/components/presets'
 
 interface PresetSectionProps {
   selectedPreset: string

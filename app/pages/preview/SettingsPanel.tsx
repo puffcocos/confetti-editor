@@ -148,11 +148,10 @@ export function SettingsPanel(props: SettingsPanelProps) {
         <div className="mb-4 p-4 bg-yellow-50 border border-yellow-300 rounded-lg">
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
-              <h3 className="text-sm font-semibold text-yellow-900 mb-1">
-                🔧 수정 모드
-              </h3>
+              <h3 className="text-sm font-semibold text-yellow-900 mb-1">🔧 수정 모드</h3>
               <p className="text-xs text-yellow-800">
-                "{customPresets[editingPresetIndex].name}" 프리셋의 효과 {editingEffectIndex + 1}을(를) 수정하고 있습니다
+                "{customPresets[editingPresetIndex].name}" 프리셋의 효과 {editingEffectIndex + 1}
+                을(를) 수정하고 있습니다
               </p>
             </div>
           </div>
@@ -315,9 +314,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
             <div className="space-y-3">
               {/* 색상 프리셋 */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  색상 프리셋
-                </label>
+                <label className="block text-xs font-medium text-gray-600 mb-2">색상 프리셋</label>
                 <div className="grid grid-cols-2 gap-2">
                   {Object.keys(COLOR_PRESETS).map((presetName) => (
                     <button
@@ -333,9 +330,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
 
               {/* 현재 색상 목록 */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  현재 색상
-                </label>
+                <label className="block text-xs font-medium text-gray-600 mb-2">현재 색상</label>
                 <div className="flex flex-wrap gap-2">
                   {customColors.map((color) => (
                     <div
@@ -360,9 +355,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
 
               {/* 색상 추가 */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  색상 추가
-                </label>
+                <label className="block text-xs font-medium text-gray-600 mb-2">색상 추가</label>
                 <div className="flex gap-2">
                   <input
                     type="color"
@@ -418,7 +411,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
         onClick={onFireCustom}
         className="w-full px-6 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-bold text-lg hover:from-orange-600 hover:to-red-600 transition-all shadow-lg"
       >
-        🎨 발사!
+        🎉 fire! 🎉
       </button>
 
       {/* 코드 미리보기 */}
@@ -478,7 +471,8 @@ function OptionSlider({
     <div>
       <div className="flex items-center gap-2 mb-1">
         <label className="text-sm font-medium text-gray-700">
-          {label}: {displayValue}{unit}
+          {label}: {displayValue}
+          {unit}
         </label>
         <span className="text-xs text-gray-500">(기본값: {defaultValue})</span>
         <div className="group relative">

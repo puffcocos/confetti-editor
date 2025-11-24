@@ -500,7 +500,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
         onClick={onFireCustom}
         className="w-full px-6 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-bold text-lg hover:from-orange-600 hover:to-red-600 transition-all shadow-lg"
       >
-        🎉 fire! 🎉
+        🎉 실행! 🎉
       </button>
 
       {/* 코드 미리보기 */}
@@ -521,7 +521,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
           </pre>
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          useConfetti 훅을 사용하여 위 코드로 confetti를 발사할 수 있습니다
+          useConfetti 훅을 사용하여 위 코드로 confetti를 실행할 수 있습니다
         </p>
       </div>
     </div>

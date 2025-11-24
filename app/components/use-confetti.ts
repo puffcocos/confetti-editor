@@ -7,7 +7,7 @@ import type { Options as ConfettiOptions } from 'canvas-confetti'
  *
  * @description
  * confetti를 프로그래밍 방식으로 제어할 수 있는 훅입니다.
- * 단일 옵션 또는 배열 형태로 제공 가능하며, 배열인 경우 순차적으로 모든 효과가 발사됩니다.
+ * 단일 옵션 또는 배열 형태로 제공 가능하며, 배열인 경우 순차적으로 모든 효과가 실행됩니다.
  *
  * @example
  * ```tsx
@@ -36,7 +36,7 @@ export function useConfetti() {
       return
     }
 
-    // 배열인 경우 모든 효과를 순차적으로 발사
+    // 배열인 경우 모든 효과를 순차적으로 실행
     if (Array.isArray(options)) {
       options.forEach((option) => confetti(option))
     } else {

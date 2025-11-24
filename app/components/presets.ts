@@ -2,7 +2,7 @@ import type { Options as ConfettiOptions } from 'canvas-confetti'
 
 /**
  * 미리 정의된 confetti 프리셋
- * 각 프리셋은 ConfettiOptions 배열로 구성되어 여러 효과를 순차적으로 발사할 수 있습니다.
+ * 각 프리셋은 ConfettiOptions 배열로 구성되어 여러 효과를 순차적으로 실행할 수 있습니다.
  */
 export const confettiPresets = {
   /**
@@ -101,7 +101,7 @@ export const confettiPresets = {
   ] as ConfettiOptions[],
 
   /**
-   * 양쪽에서 발사
+   * 양쪽에서 효과
    */
   sides: [
     {

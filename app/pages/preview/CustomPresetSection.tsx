@@ -158,7 +158,7 @@ export function CustomPresetSection({
                     </button>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
-                    useConfetti 훅을 사용하여 위 코드로 "{preset.name}" 프리셋을 발사할 수 있습니다
+                    useConfetti 훅을 사용하여 위 코드로 "{preset.name}" 프리셋을 실행할 수 있습니다
                   </p>
                 </div>
               )}

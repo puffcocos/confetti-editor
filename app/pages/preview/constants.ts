@@ -23,7 +23,7 @@ export const DEFAULT_VALUES = {
 export const OPTION_INFO: Record<string, OptionInfo> = {
   particleCount: {
     label: '파티클 개수',
-    description: '한 번에 발사되는 confetti 파티클의 개수',
+    description: '한 번에 생성되는 confetti 파티클의 개수',
     min: 1,
     max: 500,
   },
@@ -35,7 +35,7 @@ export const OPTION_INFO: Record<string, OptionInfo> = {
   },
   startVelocity: {
     label: '초기 속도',
-    description: '파티클의 초기 발사 속도',
+    description: '파티클의 초기 이동 속도',
     min: 0,
     max: 100,
   },
@@ -61,21 +61,21 @@ export const OPTION_INFO: Record<string, OptionInfo> = {
   },
   originX: {
     label: 'X 위치',
-    description: '가로 발사 위치 (0 = 왼쪽, 0.5 = 중앙, 1 = 오른쪽)',
+    description: '가로 시작 위치 (0 = 왼쪽, 0.5 = 중앙, 1 = 오른쪽)',
     min: 0,
     max: 1,
     step: 0.1,
   },
   originY: {
     label: 'Y 위치',
-    description: '세로 발사 위치 (0 = 상단, 0.5 = 중앙, 1 = 하단)',
+    description: '세로 시작 위치 (0 = 상단, 0.5 = 중앙, 1 = 하단)',
     min: 0,
     max: 1,
     step: 0.1,
   },
   angle: {
-    label: '발사 각도',
-    description: '파티클 발사 방향 (90 = 위, 0 = 오른쪽, 180 = 왼쪽)',
+    label: '방향 각도',
+    description: '파티클 진행 방향 (90 = 위, 0 = 오른쪽, 180 = 왼쪽)',
     min: 0,
     max: 360,
   },

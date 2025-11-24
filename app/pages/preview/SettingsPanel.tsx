@@ -33,6 +33,7 @@ interface SettingsPanelProps {
   // 커스텀 색상 프리셋
   customColorPresets: CustomColorPreset[]
   colorPresetName: string
+  editingColorPresetIndex: number | null
 
   // 상태 업데이트 함수
   onParticleCountChange: (value: number) => void
@@ -61,6 +62,9 @@ interface SettingsPanelProps {
   onSaveCustomColorPreset: () => void
   onApplyCustomColorPreset: (preset: CustomColorPreset) => void
   onDeleteCustomColorPreset: (index: number) => void
+  onStartEditingColorPreset: (index: number) => void
+  onUpdateCustomColorPreset: () => void
+  onCancelEditingColorPreset: () => void
 }
 
 /**
@@ -91,6 +95,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
     copiedMain,
     customColorPresets,
     colorPresetName,
+    editingColorPresetIndex,
     onParticleCountChange,
     onSpreadChange,
     onStartVelocityChange,
@@ -115,6 +120,9 @@ export function SettingsPanel(props: SettingsPanelProps) {
     onSaveCustomColorPreset,
     onApplyCustomColorPreset,
     onDeleteCustomColorPreset,
+    onStartEditingColorPreset,
+    onUpdateCustomColorPreset,
+    onCancelEditingColorPreset,
   } = props
 
   const addColor = () => {
@@ -334,7 +342,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
             <button
               onClick={() => onUseCustomColorsChange(!useCustomColors)}
               className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                useCustomColors ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'
+                useCustomColors ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
               }`}
             >
               {useCustomColors ? 'ON' : 'OFF'}
@@ -367,7 +375,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
                   커스텀 색상 프리셋
                 </label>
 
-                {/* 프리셋 저장 */}
+                {/* 프리셋 저장/업데이트 */}
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
@@ -376,12 +384,29 @@ export function SettingsPanel(props: SettingsPanelProps) {
                     placeholder="프리셋 이름"
                     className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-gray-800"
                   />
-                  <button
-                    onClick={onSaveCustomColorPreset}
-                    className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs font-medium"
-                  >
-                    저장
-                  </button>
+                  {editingColorPresetIndex !== null ? (
+                    <>
+                      <button
+                        onClick={onUpdateCustomColorPreset}
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs font-medium"
+                      >
+                        업데이트
+                      </button>
+                      <button
+                        onClick={onCancelEditingColorPreset}
+                        className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-xs font-medium"
+                      >
+                        취소
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={onSaveCustomColorPreset}
+                      className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs font-medium"
+                    >
+                      저장
+                    </button>
+                  )}
                 </div>
 
                 {/* 저장된 커스텀 프리셋 목록 */}
@@ -390,7 +415,11 @@ export function SettingsPanel(props: SettingsPanelProps) {
                     {customColorPresets.map((preset, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-2 p-2 bg-white rounded border border-gray-300"
+                        className={`flex items-center gap-2 p-2 rounded border transition-colors ${
+                          editingColorPresetIndex === index
+                            ? 'bg-yellow-50 border-yellow-400'
+                            : 'bg-white border-gray-300'
+                        }`}
                       >
                         <button
                           onClick={() => onApplyCustomColorPreset(preset)}
@@ -398,6 +427,13 @@ export function SettingsPanel(props: SettingsPanelProps) {
                         >
                           {preset.name}
                           <span className="ml-1 text-gray-600">({preset.colors.length}개)</span>
+                        </button>
+                        <button
+                          onClick={() => onStartEditingColorPreset(index)}
+                          className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs"
+                          title="이 프리셋 수정"
+                        >
+                          수정
                         </button>
                         <button
                           onClick={() => onDeleteCustomColorPreset(index)}
@@ -461,7 +497,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
                   />
                   <button
                     onClick={addColor}
-                    className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors text-sm font-medium"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
                   >
                     추가
                   </button>
@@ -481,7 +517,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
                 onClick={() => toggleShape(shape)}
                 className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
                   shapes.includes(shape)
-                    ? 'bg-purple-600 text-white'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >

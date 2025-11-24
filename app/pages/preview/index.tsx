@@ -60,6 +60,9 @@ export function PreviewPage() {
   const [editingPresetIndex, setEditingPresetIndex] = useState<number | null>(null)
   const [editingEffectIndex, setEditingEffectIndex] = useState<number | null>(null)
 
+  // 색상 프리셋 수정 모드
+  const [editingColorPresetIndex, setEditingColorPresetIndex] = useState<number | null>(null)
+
   // 현재 옵션 조합
   const currentOptions: ConfettiOptions = {
     particleCount,
@@ -271,6 +274,48 @@ export function PreviewPage() {
     setCustomColorPresets(customColorPresets.filter((_, i) => i !== index))
   }
 
+  // 커스텀 색상 프리셋 수정 시작
+  const startEditingColorPreset = (index: number) => {
+    const preset = customColorPresets[index]
+    setCustomColors(preset.colors)
+    setColorPresetName(preset.name)
+    setEditingColorPresetIndex(index)
+    setUseCustomColors(true)
+  }
+
+  // 커스텀 색상 프리셋 업데이트
+  const updateCustomColorPreset = () => {
+    if (editingColorPresetIndex === null) return
+
+    if (!colorPresetName.trim()) {
+      alert('색상 프리셋 이름을 입력해주세요')
+      return
+    }
+
+    if (customColors.length === 0) {
+      alert('최소 1개 이상의 색상을 추가해주세요')
+      return
+    }
+
+    const updatedPresets = [...customColorPresets]
+    updatedPresets[editingColorPresetIndex] = {
+      name: colorPresetName,
+      colors: [...customColors],
+    }
+
+    setCustomColorPresets(updatedPresets)
+    setColorPresetName('')
+    setEditingColorPresetIndex(null)
+    alert('색상 프리셋이 업데이트되었습니다!')
+  }
+
+  // 색상 프리셋 수정 모드 취소
+  const cancelEditingColorPreset = () => {
+    setEditingColorPresetIndex(null)
+    setColorPresetName('')
+    setCustomColors(['#ff0000', '#00ff00', '#0000ff'])
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8">
       <div className="max-w-6xl mx-auto">
@@ -330,6 +375,7 @@ export function PreviewPage() {
             copiedMain={copiedMain}
             customColorPresets={customColorPresets}
             colorPresetName={colorPresetName}
+            editingColorPresetIndex={editingColorPresetIndex}
             onParticleCountChange={setParticleCount}
             onSpreadChange={setSpread}
             onStartVelocityChange={setStartVelocity}
@@ -354,6 +400,9 @@ export function PreviewPage() {
             onSaveCustomColorPreset={saveCustomColorPreset}
             onApplyCustomColorPreset={applyCustomColorPreset}
             onDeleteCustomColorPreset={deleteCustomColorPreset}
+            onStartEditingColorPreset={startEditingColorPreset}
+            onUpdateCustomColorPreset={updateCustomColorPreset}
+            onCancelEditingColorPreset={cancelEditingColorPreset}
           />
         </div>
 

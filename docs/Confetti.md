@@ -111,12 +111,20 @@ function App() {
 
 #### 반환값
 
-`(options?: ConfettiOptions) => void` - confetti 실행 함수
+```typescript
+{
+  fire: (options?: ConfettiOptions | ConfettiOptions[]) => void
+  createShape: (options: { path: string; matrix?: number[] }) => Shape
+}
+```
+
+- `fire`: confetti 실행 함수 (단일 옵션 또는 배열 지원)
+- `createShape`: SVG Path 기반 커스텀 파티클 생성 함수
 
 #### 사용 예제
 
 ```tsx
-const fire = useConfetti();
+const { fire, createShape } = useConfetti();
 
 // 기본 옵션으로 실행
 fire();
@@ -124,11 +132,17 @@ fire();
 // 커스텀 옵션으로 실행
 fire({ particleCount: 200, spread: 180 });
 
-// 여러 번 실행
-const celebrate = () => {
-  fire({ particleCount: 100, angle: 60, origin: { x: 0 } });
-  fire({ particleCount: 100, angle: 120, origin: { x: 1 } });
-};
+// 여러 효과를 배열로 실행
+fire([
+  { particleCount: 100, angle: 60, origin: { x: 0 } },
+  { particleCount: 100, angle: 120, origin: { x: 1 } }
+]);
+
+// 커스텀 파티클 사용
+const heart = createShape({
+  path: 'M5 2 C5 0.5 6 0 7 0 C8 0 9 1 9 2.5 C9 4 7.5 6 5 8 C2.5 6 1 4 1 2.5 C1 1 2 0 3 0 C4 0 5 0.5 5 2z'
+});
+fire({ shapes: [heart], particleCount: 50 });
 ```
 
 ---
@@ -447,6 +461,18 @@ fire({
   particleCount: 50,
   shapes: ['star', 'circle', 'square']
 });
+
+// 커스텀 SVG 파티클
+const { fire, createShape } = useConfetti();
+
+const customShape = createShape({
+  path: 'M10 0 L12 7 L20 7 L14 12 L16 20 L10 15 L4 20 L6 12 L0 7 L8 7z'
+});
+
+fire({
+  particleCount: 50,
+  shapes: [customShape]
+});
 ```
 
 #### 위치 커스터마이징
@@ -466,6 +492,92 @@ fire({ origin: { x: 1, y: 0.5 } });
 
 // 화면 중앙
 fire({ origin: { x: 0.5, y: 0.5 } });
+```
+
+---
+
+## 커스텀 파티클 (shapeFromPath)
+
+canvas-confetti의 `shapeFromPath` API를 사용하여 SVG Path 기반의 커스텀 파티클을 만들 수 있습니다.
+
+### 기본 사용법
+
+```tsx
+const { fire, createShape } = useConfetti();
+
+// 하트 모양 파티클
+const heart = createShape({
+  path: 'M5 2 C5 0.5 6 0 7 0 C8 0 9 1 9 2.5 C9 4 7.5 6 5 8 C2.5 6 1 4 1 2.5 C1 1 2 0 3 0 C4 0 5 0.5 5 2z'
+});
+
+fire({
+  shapes: [heart],
+  particleCount: 100
+});
+```
+
+### Matrix를 사용한 최적화
+
+성능 최적화를 위해 미리 계산된 transform matrix를 사용할 수 있습니다.
+
+```tsx
+const optimizedShape = createShape({
+  path: 'M449.4 142c-5 0-10 .3-15 1a183 183 0 0 0-66.9-19.1V87.5...',
+  matrix: [
+    0.020491803278688523, 0, 0, 0.020491803278688523,
+    -7.172131147540983, -5.9016393442622945
+  ]
+});
+
+fire({
+  shapes: [optimizedShape],
+  particleCount: 50
+});
+```
+
+### 여러 커스텀 파티클 조합
+
+```tsx
+const { fire, createShape } = useConfetti();
+
+const heart = createShape({
+  path: 'M5 2 C5 0.5 6 0 7 0 C8 0 9 1 9 2.5 C9 4 7.5 6 5 8 C2.5 6 1 4 1 2.5 C1 1 2 0 3 0 C4 0 5 0.5 5 2z'
+});
+
+const star = createShape({
+  path: 'M5 0 L6 3 L10 3 L7 5 L8 8 L5 6 L2 8 L3 5 L0 3 L4 3z'
+});
+
+// 여러 모양을 함께 사용
+fire({
+  shapes: [heart, star, 'circle', 'square'],
+  particleCount: 100,
+  colors: ['#ff0000', '#ffd700']
+});
+```
+
+### 주의사항
+
+- 모든 path는 **fill**로 처리됩니다 (stroke 미지원)
+- 파티클은 **단일 색상**만 지원합니다
+- matrix를 미리 계산하여 저장하면 **런타임 성능**이 향상됩니다
+- 어떤 좌표 범위의 SVG path도 자동으로 적절한 크기로 렌더링됩니다
+
+### SVG Path 찾기
+
+SVG Path는 다음 방법으로 얻을 수 있습니다:
+
+1. **SVG 편집기 사용**: Figma, Illustrator, Inkscape 등
+2. **아이콘 라이브러리**: Font Awesome, Material Icons 등
+3. **온라인 도구**: SVG Path Editor, Method Draw 등
+4. **직접 작성**: SVG Path 명령어 학습
+
+예시:
+```html
+<!-- SVG 파일에서 d 속성 추출 -->
+<svg>
+  <path d="M10 0 L12 7 L20 7..." />
+</svg>
 ```
 
 ---

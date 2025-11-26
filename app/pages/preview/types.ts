@@ -18,6 +18,15 @@ export interface CustomColorPreset {
 }
 
 /**
+ * 커스텀 도형 프리셋 타입
+ */
+export interface CustomShapePreset {
+  name: string
+  path: string
+  matrix?: number[] // 미리 계산된 transform matrix (성능 최적화용)
+}
+
+/**
  * 옵션 정보 타입
  */
 export interface OptionInfo {

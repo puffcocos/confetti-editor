@@ -1,6 +1,7 @@
 import type { Options as ConfettiOptions } from 'canvas-confetti'
-import type { CustomPreset, CustomColorPreset } from './types'
+import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types'
 import { DEFAULT_VALUES, OPTION_INFO, COLOR_PRESETS } from './constants'
+import { EXAMPLE_SHAPE_PRESETS } from './shape-presets'
 
 interface SettingsPanelProps {
   // 옵션 상태
@@ -35,6 +36,13 @@ interface SettingsPanelProps {
   colorPresetName: string
   editingColorPresetIndex: number | null
 
+  // 커스텀 도형
+  useCustomShapes: boolean
+  customShapePath: string
+  customShapePresets: CustomShapePreset[]
+  shapePresetName: string
+  editingShapePresetIndex: number | null
+
   // 상태 업데이트 함수
   onParticleCountChange: (value: number) => void
   onSpreadChange: (value: number) => void
@@ -65,6 +73,19 @@ interface SettingsPanelProps {
   onStartEditingColorPreset: (index: number) => void
   onUpdateCustomColorPreset: () => void
   onCancelEditingColorPreset: () => void
+
+  // 커스텀 도형 관련
+  onUseCustomShapesChange: (value: boolean) => void
+  onCustomShapePathChange: (value: string) => void
+  onShapePresetNameChange: (value: string) => void
+  onPreviewCustomShape: () => void
+  onAddCustomShapePreset: () => void
+  onLoadExampleShape: (preset: CustomShapePreset) => void
+  onApplyCustomShapePreset: (preset: CustomShapePreset) => void
+  onDeleteCustomShapePreset: (index: number) => void
+  onStartEditingShapePreset: (index: number) => void
+  onUpdateCustomShapePreset: () => void
+  onCancelEditingShapePreset: () => void
 }
 
 /**
@@ -96,6 +117,11 @@ export function SettingsPanel(props: SettingsPanelProps) {
     customColorPresets,
     colorPresetName,
     editingColorPresetIndex,
+    useCustomShapes,
+    customShapePath,
+    customShapePresets,
+    shapePresetName,
+    editingShapePresetIndex,
     onParticleCountChange,
     onSpreadChange,
     onStartVelocityChange,
@@ -123,6 +149,17 @@ export function SettingsPanel(props: SettingsPanelProps) {
     onStartEditingColorPreset,
     onUpdateCustomColorPreset,
     onCancelEditingColorPreset,
+    onUseCustomShapesChange,
+    onCustomShapePathChange,
+    onShapePresetNameChange,
+    onPreviewCustomShape,
+    onAddCustomShapePreset,
+    onLoadExampleShape,
+    onApplyCustomShapePreset,
+    onDeleteCustomShapePreset,
+    onStartEditingShapePreset,
+    onUpdateCustomShapePreset,
+    onCancelEditingShapePreset,
   } = props
 
   const addColor = () => {
@@ -528,6 +565,162 @@ export function SettingsPanel(props: SettingsPanelProps) {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* 커스텀 도형 (shapeFromPath) */}
+        <div className="pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-sm font-medium text-gray-700">커스텀 도형 (SVG Path)</label>
+            <button
+              onClick={() => onUseCustomShapesChange(!useCustomShapes)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                useCustomShapes
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              {useCustomShapes ? 'ON' : 'OFF'}
+            </button>
+          </div>
+
+          {useCustomShapes && (
+            <div className="space-y-4 bg-blue-50 p-4 rounded-lg">
+              {/* 주의사항 */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-xs text-gray-700">
+                <p className="font-semibold mb-1">ℹ️ 주의사항:</p>
+                <ul className="list-disc list-inside space-y-1 text-xs">
+                  <li>모든 path는 fill로 처리됩니다 (stroke 미지원)</li>
+                  <li>도형은 단일 색상만 지원합니다</li>
+                  <li>성능을 위해 matrix를 미리 계산합니다</li>
+                </ul>
+              </div>
+
+              {/* SVG Path 입력 */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-2">
+                  SVG Path 문자열
+                </label>
+                <textarea
+                  value={customShapePath}
+                  onChange={(e) => onCustomShapePathChange(e.target.value)}
+                  placeholder="예: M0 10 L5 0 L10 10z"
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 font-mono resize-none"
+                  rows={3}
+                />
+              </div>
+
+              {/* 미리보기 및 저장 */}
+              <div className="flex gap-2">
+                <button
+                  onClick={onPreviewCustomShape}
+                  className="flex-1 px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors text-xs font-medium"
+                  title="입력한 Path로 미리보기"
+                >
+                  🔍 미리보기
+                </button>
+              </div>
+
+              {/* 프리셋 저장 */}
+              <div className="pt-3 border-t border-gray-300">
+                <label className="block text-xs font-medium text-gray-600 mb-2">
+                  도형 프리셋 이름
+                </label>
+                <input
+                  type="text"
+                  value={shapePresetName}
+                  onChange={(e) => onShapePresetNameChange(e.target.value)}
+                  placeholder="예: 하트, 삼각형"
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 mb-2"
+                />
+                <div className="flex gap-2">
+                  {editingShapePresetIndex !== null ? (
+                    <>
+                      <button
+                        onClick={onUpdateCustomShapePreset}
+                        className="flex-1 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs font-medium"
+                      >
+                        업데이트
+                      </button>
+                      <button
+                        onClick={onCancelEditingShapePreset}
+                        className="flex-1 px-3 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-xs font-medium"
+                      >
+                        취소
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={onAddCustomShapePreset}
+                      className="w-full px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs font-medium"
+                    >
+                      저장
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 저장된 프리셋 목록 */}
+              {customShapePresets.length > 0 && (
+                <div className="pt-3 border-t border-gray-300">
+                  <label className="block text-xs font-medium text-gray-600 mb-2">
+                    저장된 도형 프리셋
+                  </label>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {customShapePresets.map((preset, index) => (
+                      <div
+                        key={index}
+                        className={`flex items-center gap-2 p-2 rounded border transition-colors ${
+                          editingShapePresetIndex === index
+                            ? 'bg-yellow-50 border-yellow-400'
+                            : 'bg-white border-gray-300'
+                        }`}
+                      >
+                        <button
+                          onClick={() => onApplyCustomShapePreset(preset)}
+                          className="flex-1 text-left text-xs font-semibold text-gray-800 hover:text-gray-900"
+                          title="이 도형 사용"
+                        >
+                          {preset.name}
+                        </button>
+                        <button
+                          onClick={() => onStartEditingShapePreset(index)}
+                          className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs"
+                          title="이 프리셋 수정"
+                        >
+                          수정
+                        </button>
+                        <button
+                          onClick={() => onDeleteCustomShapePreset(index)}
+                          className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs"
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 예시 도형 */}
+              <div className="pt-3 border-t border-gray-300">
+                <label className="block text-xs font-medium text-gray-600 mb-2">
+                  💡 예시 도형 불러오기
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {EXAMPLE_SHAPE_PRESETS.map((preset) => (
+                    <button
+                      key={preset.name}
+                      onClick={() => onLoadExampleShape(preset)}
+                      className="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-xs font-medium border border-gray-300"
+                      title={`${preset.name} Path 불러오기`}
+                    >
+                      {preset.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

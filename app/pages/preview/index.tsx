@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Options as ConfettiOptions } from 'canvas-confetti'
+import confetti from 'canvas-confetti'
 import { confettiPresets } from '~/components/presets'
 import { useConfetti } from '~/components/use-confetti'
 import { useLocalStorage } from '~/hooks/use-local-storage'
@@ -7,7 +8,8 @@ import { PresetSection } from './preset-section'
 import { CustomPresetSection } from './custom-preset-section'
 import { SettingsPanel } from './settings-panel'
 import { DEFAULT_VALUES } from './constants'
-import type { CustomPreset, CustomColorPreset } from './types'
+import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types'
+import { EXAMPLE_SHAPE_PRESETS } from './shape-presets'
 
 /**
  * Confetti 미리보기 페이지
@@ -63,6 +65,16 @@ export function PreviewPage() {
   // 색상 프리셋 수정 모드
   const [editingColorPresetIndex, setEditingColorPresetIndex] = useState<number | null>(null)
 
+  // 커스텀 도형 옵션
+  const [useCustomShapes, setUseCustomShapes] = useState(false)
+  const [customShapePath, setCustomShapePath] = useState('')
+  const [customShapePresets, setCustomShapePresets] = useLocalStorage<CustomShapePreset[]>(
+    'confetti-custom-shape-presets',
+    [],
+  )
+  const [shapePresetName, setShapePresetName] = useState('')
+  const [editingShapePresetIndex, setEditingShapePresetIndex] = useState<number | null>(null)
+
   // 현재 옵션 조합
   const currentOptions: ConfettiOptions = {
     particleCount,
@@ -76,7 +88,35 @@ export function PreviewPage() {
     scalar,
     drift,
     ...(useCustomColors && customColors.length > 0 ? { colors: customColors } : {}),
-    ...(shapes.length > 0 ? { shapes: shapes as any } : {}),
+    ...((() => {
+      // 커스텀 도형과 기본 도형 결합
+      const allShapes: any[] = []
+
+      // 기본 도형 추가
+      if (!useCustomShapes && shapes.length > 0) {
+        allShapes.push(...shapes)
+      }
+
+      // 커스텀 도형 추가
+      if (useCustomShapes && customShapePresets.length > 0) {
+        const customShapes = customShapePresets.map(preset => {
+          if (preset.matrix) {
+            // 배열을 DOMMatrix로 변환
+            const matrix = new DOMMatrix(preset.matrix)
+            return confetti.shapeFromPath({ path: preset.path, matrix })
+          }
+          return confetti.shapeFromPath({ path: preset.path })
+        })
+        allShapes.push(...customShapes)
+
+        // 기본 도형도 함께 사용
+        if (shapes.length > 0) {
+          allShapes.push(...shapes)
+        }
+      }
+
+      return allShapes.length > 0 ? { shapes: allShapes } : {}
+    })()),
   }
 
   // 기본값으로 리셋
@@ -95,6 +135,8 @@ export function PreviewPage() {
     setUseCustomColors(false)
     setCustomColors(['#ff0000', '#00ff00', '#0000ff'])
     setShapes(['square', 'circle'])
+    setUseCustomShapes(false)
+    setCustomShapePath('')
   }
 
   // 프리셋 실행
@@ -316,6 +358,120 @@ export function PreviewPage() {
     setCustomColors(['#ff0000', '#00ff00', '#0000ff'])
   }
 
+  // 커스텀 도형 Path 입력으로 미리보기
+  const previewCustomShape = () => {
+    if (!customShapePath.trim()) {
+      alert('SVG Path를 입력해주세요')
+      return
+    }
+
+    try {
+      const shape = confetti.shapeFromPath({ path: customShapePath })
+      confetti({
+        ...currentOptions,
+        shapes: [shape],
+        particleCount: 30,
+      })
+    } catch (error) {
+      alert('유효하지 않은 SVG Path입니다')
+      console.error('Shape preview error:', error)
+    }
+  }
+
+  // 커스텀 도형 프리셋에 추가 (matrix 자동 계산)
+  const addCustomShapePreset = () => {
+    if (!customShapePath.trim()) {
+      alert('SVG Path를 입력해주세요')
+      return
+    }
+
+    if (!shapePresetName.trim()) {
+      alert('도형 프리셋 이름을 입력해주세요')
+      return
+    }
+
+    try {
+      // shapeFromPath 호출하여 matrix 계산 (자동)
+      const shape = confetti.shapeFromPath({ path: customShapePath })
+
+      // 계산된 matrix 추출 (shape 객체에서)
+      // 주의: canvas-confetti의 내부 구조에 따라 달라질 수 있음
+      const newPreset: CustomShapePreset = {
+        name: shapePresetName,
+        path: customShapePath,
+        // matrix는 일단 저장하지 않고, 런타임에 계산
+        // 필요시 나중에 최적화 가능
+      }
+
+      setCustomShapePresets([...customShapePresets, newPreset])
+      setShapePresetName('')
+      setCustomShapePath('')
+      alert(`"${shapePresetName}" 도형 프리셋이 저장되었습니다!`)
+    } catch (error) {
+      alert('유효하지 않은 SVG Path입니다')
+      console.error('Shape add error:', error)
+    }
+  }
+
+  // 예시 도형 불러오기
+  const loadExampleShape = (preset: CustomShapePreset) => {
+    setCustomShapePath(preset.path)
+    setShapePresetName(preset.name)
+  }
+
+  // 저장된 커스텀 도형 프리셋 적용
+  const applyCustomShapePreset = (preset: CustomShapePreset) => {
+    setCustomShapePresets([preset])
+    setUseCustomShapes(true)
+  }
+
+  // 커스텀 도형 프리셋 삭제
+  const deleteCustomShapePreset = (index: number) => {
+    setCustomShapePresets(customShapePresets.filter((_, i) => i !== index))
+  }
+
+  // 커스텀 도형 프리셋 수정 시작
+  const startEditingShapePreset = (index: number) => {
+    const preset = customShapePresets[index]
+    setCustomShapePath(preset.path)
+    setShapePresetName(preset.name)
+    setEditingShapePresetIndex(index)
+  }
+
+  // 커스텀 도형 프리셋 업데이트
+  const updateCustomShapePreset = () => {
+    if (editingShapePresetIndex === null) return
+
+    if (!shapePresetName.trim()) {
+      alert('도형 프리셋 이름을 입력해주세요')
+      return
+    }
+
+    if (!customShapePath.trim()) {
+      alert('SVG Path를 입력해주세요')
+      return
+    }
+
+    const updatedPresets = [...customShapePresets]
+    updatedPresets[editingShapePresetIndex] = {
+      name: shapePresetName,
+      path: customShapePath,
+    }
+
+    setCustomShapePresets(updatedPresets)
+    setShapePresetName('')
+    setCustomShapePath('')
+    setEditingShapePresetIndex(null)
+    alert('도형 프리셋이 업데이트되었습니다!')
+  }
+
+  // 도형 프리셋 수정 모드 취소
+  const cancelEditingShapePreset = () => {
+    setEditingShapePresetIndex(null)
+    setShapePresetName('')
+    setCustomShapePath('')
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8">
       <div className="max-w-6xl mx-auto">
@@ -403,6 +559,22 @@ export function PreviewPage() {
             onStartEditingColorPreset={startEditingColorPreset}
             onUpdateCustomColorPreset={updateCustomColorPreset}
             onCancelEditingColorPreset={cancelEditingColorPreset}
+            useCustomShapes={useCustomShapes}
+            customShapePath={customShapePath}
+            customShapePresets={customShapePresets}
+            shapePresetName={shapePresetName}
+            editingShapePresetIndex={editingShapePresetIndex}
+            onUseCustomShapesChange={setUseCustomShapes}
+            onCustomShapePathChange={setCustomShapePath}
+            onShapePresetNameChange={setShapePresetName}
+            onPreviewCustomShape={previewCustomShape}
+            onAddCustomShapePreset={addCustomShapePreset}
+            onLoadExampleShape={loadExampleShape}
+            onApplyCustomShapePreset={applyCustomShapePreset}
+            onDeleteCustomShapePreset={deleteCustomShapePreset}
+            onStartEditingShapePreset={startEditingShapePreset}
+            onUpdateCustomShapePreset={updateCustomShapePreset}
+            onCancelEditingShapePreset={cancelEditingShapePreset}
           />
         </div>
 

@@ -70,6 +70,7 @@ export function PreviewPage() {
     'confetti-custom-shape-presets',
     [],
   )
+  const [selectedCustomShapes, setSelectedCustomShapes] = useState<CustomShapePreset[]>([])
   const [shapePresetName, setShapePresetName] = useState('')
   const [editingShapePresetIndex, setEditingShapePresetIndex] = useState<number | null>(null)
 
@@ -96,8 +97,8 @@ export function PreviewPage() {
       }
 
       // 커스텀 도형 추가
-      if (useCustomShapes && customShapePresets.length > 0) {
-        const customShapes = customShapePresets.map(preset =>
+      if (useCustomShapes && selectedCustomShapes.length > 0) {
+        const customShapes = selectedCustomShapes.map(preset =>
           createShape({ path: preset.path, matrix: preset.matrix })
         )
         allShapes.push(...customShapes)
@@ -130,6 +131,7 @@ export function PreviewPage() {
     setShapes(['square', 'circle'])
     setUseCustomShapes(false)
     setCustomShapePath('')
+    setSelectedCustomShapes([])
   }
 
   // 프리셋 실행
@@ -409,10 +411,15 @@ export function PreviewPage() {
     setShapePresetName(preset.name)
   }
 
-  // 저장된 커스텀 도형 프리셋 적용
-  const applyCustomShapePreset = (preset: CustomShapePreset) => {
-    setCustomShapePresets([preset])
-    setUseCustomShapes(true)
+  // 커스텀 도형 선택/해제 토글
+  const toggleCustomShape = (preset: CustomShapePreset) => {
+    const isSelected = selectedCustomShapes.some(s => s.name === preset.name)
+    if (isSelected) {
+      setSelectedCustomShapes(selectedCustomShapes.filter(s => s.name !== preset.name))
+    } else {
+      setSelectedCustomShapes([...selectedCustomShapes, preset])
+      setUseCustomShapes(true)
+    }
   }
 
   // 커스텀 도형 프리셋 삭제
@@ -552,6 +559,7 @@ export function PreviewPage() {
             useCustomShapes={useCustomShapes}
             customShapePath={customShapePath}
             customShapePresets={customShapePresets}
+            selectedCustomShapes={selectedCustomShapes}
             shapePresetName={shapePresetName}
             editingShapePresetIndex={editingShapePresetIndex}
             onUseCustomShapesChange={setUseCustomShapes}
@@ -560,7 +568,7 @@ export function PreviewPage() {
             onPreviewCustomShape={previewCustomShape}
             onAddCustomShapePreset={addCustomShapePreset}
             onLoadExampleShape={loadExampleShape}
-            onApplyCustomShapePreset={applyCustomShapePreset}
+            onToggleCustomShape={toggleCustomShape}
             onDeleteCustomShapePreset={deleteCustomShapePreset}
             onStartEditingShapePreset={startEditingShapePreset}
             onUpdateCustomShapePreset={updateCustomShapePreset}

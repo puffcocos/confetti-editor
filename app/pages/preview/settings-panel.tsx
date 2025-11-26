@@ -40,6 +40,7 @@ interface SettingsPanelProps {
   useCustomShapes: boolean
   customShapePath: string
   customShapePresets: CustomShapePreset[]
+  selectedCustomShapes: CustomShapePreset[]
   shapePresetName: string
   editingShapePresetIndex: number | null
 
@@ -81,7 +82,7 @@ interface SettingsPanelProps {
   onPreviewCustomShape: () => void
   onAddCustomShapePreset: () => void
   onLoadExampleShape: (preset: CustomShapePreset) => void
-  onApplyCustomShapePreset: (preset: CustomShapePreset) => void
+  onToggleCustomShape: (preset: CustomShapePreset) => void
   onDeleteCustomShapePreset: (index: number) => void
   onStartEditingShapePreset: (index: number) => void
   onUpdateCustomShapePreset: () => void
@@ -120,6 +121,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
     useCustomShapes,
     customShapePath,
     customShapePresets,
+    selectedCustomShapes,
     shapePresetName,
     editingShapePresetIndex,
     onParticleCountChange,
@@ -155,7 +157,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
     onPreviewCustomShape,
     onAddCustomShapePreset,
     onLoadExampleShape,
-    onApplyCustomShapePreset,
+    onToggleCustomShape,
     onDeleteCustomShapePreset,
     onStartEditingShapePreset,
     onUpdateCustomShapePreset,
@@ -620,10 +622,10 @@ export function SettingsPanel(props: SettingsPanelProps) {
                 </button>
               </div>
 
-              {/* 프리셋 저장 */}
+              {/* 커스텀 도형 저장 */}
               <div className="pt-3 border-t border-gray-300">
                 <label className="block text-xs font-medium text-gray-600 mb-2">
-                  도형 프리셋 이름
+                  커스텀 도형 이름
                 </label>
                 <input
                   type="text"
@@ -659,44 +661,53 @@ export function SettingsPanel(props: SettingsPanelProps) {
                 </div>
               </div>
 
-              {/* 저장된 프리셋 목록 */}
+              {/* 저장된 커스텀 도형 목록 */}
               {customShapePresets.length > 0 && (
                 <div className="pt-3 border-t border-gray-300">
                   <label className="block text-xs font-medium text-gray-600 mb-2">
-                    저장된 도형 프리셋
+                    저장된 커스텀 도형
                   </label>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {customShapePresets.map((preset, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center gap-2 p-2 rounded border transition-colors ${
-                          editingShapePresetIndex === index
-                            ? 'bg-yellow-50 border-yellow-400'
-                            : 'bg-white border-gray-300'
-                        }`}
-                      >
-                        <button
-                          onClick={() => onApplyCustomShapePreset(preset)}
-                          className="flex-1 text-left text-xs font-semibold text-gray-800 hover:text-gray-900"
-                          title="이 도형 사용"
+                    {customShapePresets.map((preset, index) => {
+                      const isSelected = selectedCustomShapes.some(s => s.name === preset.name)
+                      return (
+                        <div
+                          key={index}
+                          className={`flex items-center gap-2 p-2 rounded border transition-colors ${
+                            editingShapePresetIndex === index
+                              ? 'bg-yellow-50 border-yellow-400'
+                              : isSelected
+                              ? 'bg-blue-50 border-blue-400'
+                              : 'bg-white border-gray-300'
+                          }`}
                         >
-                          {preset.name}
-                        </button>
-                        <button
-                          onClick={() => onStartEditingShapePreset(index)}
-                          className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs"
-                          title="이 프리셋 수정"
-                        >
-                          수정
-                        </button>
-                        <button
-                          onClick={() => onDeleteCustomShapePreset(index)}
-                          className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs"
-                        >
-                          삭제
-                        </button>
-                      </div>
-                    ))}
+                          <button
+                            onClick={() => onToggleCustomShape(preset)}
+                            className={`flex-1 text-left text-xs font-semibold transition-colors ${
+                              isSelected
+                                ? 'text-blue-700'
+                                : 'text-gray-800 hover:text-gray-900'
+                            }`}
+                            title={isSelected ? '선택 해제' : '선택하여 사용'}
+                          >
+                            {isSelected && '✓ '}{preset.name}
+                          </button>
+                          <button
+                            onClick={() => onStartEditingShapePreset(index)}
+                            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs"
+                            title="수정"
+                          >
+                            수정
+                          </button>
+                          <button
+                            onClick={() => onDeleteCustomShapePreset(index)}
+                            className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )}

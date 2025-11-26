@@ -367,7 +367,7 @@ export function PreviewPage() {
 
     try {
       const shape = confetti.shapeFromPath({ path: customShapePath })
-      confetti({
+      fire({
         ...currentOptions,
         shapes: [shape],
         particleCount: 30,

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import type { Options as ConfettiOptions } from 'canvas-confetti'
-import confetti from 'canvas-confetti'
 import { confettiPresets } from '~/components/presets'
 import { useConfetti } from '~/components/use-confetti'
 import { useLocalStorage } from '~/hooks/use-local-storage'
@@ -9,13 +8,12 @@ import { CustomPresetSection } from './custom-preset-section'
 import { SettingsPanel } from './settings-panel'
 import { DEFAULT_VALUES } from './constants'
 import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types'
-import { EXAMPLE_SHAPE_PRESETS } from './shape-presets'
 
 /**
  * Confetti 미리보기 페이지
  */
 export function PreviewPage() {
-  const fire = useConfetti()
+  const { fire, createShape } = useConfetti()
   const [selectedPreset, setSelectedPreset] = useState<string>('celebration')
 
   // 커스텀 옵션 상태
@@ -99,14 +97,9 @@ export function PreviewPage() {
 
       // 커스텀 도형 추가
       if (useCustomShapes && customShapePresets.length > 0) {
-        const customShapes = customShapePresets.map(preset => {
-          if (preset.matrix) {
-            // 배열을 DOMMatrix로 변환
-            const matrix = new DOMMatrix(preset.matrix)
-            return confetti.shapeFromPath({ path: preset.path, matrix })
-          }
-          return confetti.shapeFromPath({ path: preset.path })
-        })
+        const customShapes = customShapePresets.map(preset =>
+          createShape({ path: preset.path, matrix: preset.matrix })
+        )
         allShapes.push(...customShapes)
 
         // 기본 도형도 함께 사용
@@ -366,7 +359,7 @@ export function PreviewPage() {
     }
 
     try {
-      const shape = confetti.shapeFromPath({ path: customShapePath })
+      const shape = createShape({ path: customShapePath })
       fire({
         ...currentOptions,
         shapes: [shape],
@@ -378,7 +371,7 @@ export function PreviewPage() {
     }
   }
 
-  // 커스텀 도형 프리셋에 추가 (matrix 자동 계산)
+  // 커스텀 도형 프리셋에 추가
   const addCustomShapePreset = () => {
     if (!customShapePath.trim()) {
       alert('SVG Path를 입력해주세요')
@@ -391,16 +384,13 @@ export function PreviewPage() {
     }
 
     try {
-      // shapeFromPath 호출하여 matrix 계산 (자동)
-      const shape = confetti.shapeFromPath({ path: customShapePath })
+      // Path 유효성 검증을 위해 createShape 호출
+      createShape({ path: customShapePath })
 
-      // 계산된 matrix 추출 (shape 객체에서)
-      // 주의: canvas-confetti의 내부 구조에 따라 달라질 수 있음
       const newPreset: CustomShapePreset = {
         name: shapePresetName,
         path: customShapePath,
-        // matrix는 일단 저장하지 않고, 런타임에 계산
-        // 필요시 나중에 최적화 가능
+        // matrix는 런타임에 createShape에서 자동 계산
       }
 
       setCustomShapePresets([...customShapePresets, newPreset])

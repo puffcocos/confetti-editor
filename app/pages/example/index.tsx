@@ -1,7 +1,7 @@
 import { useConfetti } from '../../components/use-confetti'
 
 export function ExamplePage() {
-  const fire = useConfetti()
+  const { fire } = useConfetti()
 
   return (
     <div>

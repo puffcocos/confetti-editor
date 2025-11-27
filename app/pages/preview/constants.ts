@@ -80,7 +80,7 @@ export const OPTION_INFO: Record<string, OptionInfo> = {
     max: 360,
   },
   scalar: {
-    label: '크기 배율',
+    label: '파티클 크기 배율',
     description: '파티클의 크기 배율 (1 = 기본 크기)',
     min: 0.1,
     max: 3,

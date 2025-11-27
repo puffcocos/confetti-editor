@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef } from 'react'
 import confetti from 'canvas-confetti'
 import type { Options as ConfettiOptions, Shape, CreateTypes } from 'canvas-confetti'
 
@@ -46,36 +46,33 @@ interface ShapeFromPathOptions {
  * ```
  */
 export function useConfetti() {
-  const [customConfetti, setCustomConfetti] = useState<CreateTypes | null>(null)
+  const customConfettiRef = useRef<CreateTypes | null>(null)
 
   // Canvas ref setter
   const setConfettiCanvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
     if (canvas) {
-      setCustomConfetti(confetti.create(canvas, { resize: true }))
+      customConfettiRef.current = confetti.create(canvas, { resize: true })
     } else {
-      setCustomConfetti(null)
+      customConfettiRef.current = null
     }
   }, [])
 
-  const fire = useCallback(
-    (options?: ConfettiOptions | ConfettiOptions[]) => {
-      // 커스텀 canvas가 설정되어 있으면 해당 canvas 사용, 아니면 기본 confetti 사용
-      const confettiFn = customConfetti || confetti
+  const fire = useCallback((options?: ConfettiOptions | ConfettiOptions[]) => {
+    // 커스텀 canvas가 설정되어 있으면 해당 canvas 사용, 아니면 기본 confetti 사용
+    const confettiFn = customConfettiRef.current || confetti
 
-      if (!options) {
-        confettiFn({})
-        return
-      }
+    if (!options) {
+      confettiFn({})
+      return
+    }
 
-      // 배열인 경우 모든 효과를 순차적으로 실행
-      if (Array.isArray(options)) {
-        options.forEach((option) => confettiFn(option))
-      } else {
-        confettiFn(options)
-      }
-    },
-    [customConfetti]
-  )
+    // 배열인 경우 모든 효과를 순차적으로 실행
+    if (Array.isArray(options)) {
+      options.forEach((option) => confettiFn(option))
+    } else {
+      confettiFn(options)
+    }
+  }, [])
 
   const createShape = useCallback((options: ShapeFromPathOptions): Shape => {
     if (options.matrix) {

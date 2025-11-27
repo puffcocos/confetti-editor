@@ -1,4 +1,4 @@
-import { useConfetti } from '../../components/use-confetti'
+import { useConfetti } from '~/shared/confetti/use-confetti'
 
 export function ExamplePage() {
   const { fire } = useConfetti()

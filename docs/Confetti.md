@@ -115,16 +115,18 @@ function App() {
 {
   fire: (options?: ConfettiOptions | ConfettiOptions[]) => void
   createShape: (options: { path: string; matrix?: number[] }) => Shape
+  setConfettiCanvasRef: (canvas: HTMLCanvasElement | null) => void
 }
 ```
 
 - `fire`: confetti 실행 함수 (단일 옵션 또는 배열 지원)
 - `createShape`: SVG Path 기반 커스텀 파티클 생성 함수
+- `setConfettiCanvasRef`: 특정 canvas 요소에서만 confetti를 렌더링하도록 설정하는 ref setter 함수
 
 #### 사용 예제
 
 ```tsx
-const { fire, createShape } = useConfetti();
+const { fire, createShape, setConfettiCanvasRef } = useConfetti();
 
 // 기본 옵션으로 실행
 fire();
@@ -143,6 +145,14 @@ const heart = createShape({
   path: 'M5 2 C5 0.5 6 0 7 0 C8 0 9 1 9 2.5 C9 4 7.5 6 5 8 C2.5 6 1 4 1 2.5 C1 1 2 0 3 0 C4 0 5 0.5 5 2z'
 });
 fire({ shapes: [heart], particleCount: 50 });
+
+// 특정 canvas에서만 confetti 실행
+return (
+  <div>
+    <canvas ref={setConfettiCanvasRef} width={800} height={600} />
+    <button onClick={() => fire()}>발사!</button>
+  </div>
+);
 ```
 
 ---
@@ -302,6 +312,69 @@ fromPosition(0, 0);
 // 오른쪽 하단에서 발사
 fromPosition(1, 1);
 ```
+
+### 6. 특정 Canvas 영역에서만 렌더링
+
+특정 canvas 요소에서만 confetti를 렌더링할 수 있습니다. 이 기능은 confetti 효과를 특정 영역으로 제한하고 싶을 때 유용합니다.
+
+```tsx
+const { fire, setConfettiCanvasRef } = useConfetti();
+
+return (
+  <div>
+    <h1>게임 영역</h1>
+    <div className="game-container">
+      {/* 이 canvas 영역에서만 confetti 발생 */}
+      <canvas
+        ref={setConfettiCanvasRef}
+        width={800}
+        height={600}
+        className="border"
+      />
+    </div>
+    <button onClick={() => fire({ particleCount: 100 })}>
+      축하하기!
+    </button>
+  </div>
+);
+```
+
+#### Canvas 모드 ON/OFF 전환
+
+```tsx
+const { fire, setConfettiCanvasRef } = useConfetti();
+const [useCanvas, setUseCanvas] = useState(false);
+
+return (
+  <div>
+    <button onClick={() => {
+      setUseCanvas(!useCanvas);
+      if (!useCanvas) {
+        // Canvas 모드 비활성화
+        setConfettiCanvasRef(null);
+      }
+    }}>
+      Canvas 모드: {useCanvas ? 'ON' : 'OFF'}
+    </button>
+
+    {useCanvas && (
+      <canvas
+        ref={setConfettiCanvasRef}
+        width={800}
+        height={600}
+      />
+    )}
+
+    <button onClick={() => fire()}>발사!</button>
+  </div>
+);
+```
+
+#### 주의사항
+
+- Canvas 요소는 반드시 `width`와 `height` 속성이 설정되어야 합니다
+- `setConfettiCanvasRef(null)`을 호출하면 전역 canvas로 복귀합니다
+- Canvas 모드에서는 `origin` 좌표가 canvas 영역 기준으로 계산됩니다
 
 ---
 

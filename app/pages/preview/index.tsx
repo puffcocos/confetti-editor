@@ -13,8 +13,9 @@ import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types
  * Confetti 미리보기 페이지
  */
 export function PreviewPage() {
-  const { fire, createShape } = useConfetti()
+  const { fire, createShape, setConfettiCanvasRef } = useConfetti()
   const [selectedPreset, setSelectedPreset] = useState<string>('celebration')
+  const [useCustomCanvas, setUseCustomCanvas] = useState(false)
 
   // 커스텀 옵션 상태
   const [particleCount, setParticleCount] = useState<number>(DEFAULT_VALUES.particleCount)
@@ -468,6 +469,21 @@ export function PreviewPage() {
         <h1 className="text-4xl font-bold text-gray-800 mb-2">Confetti 미리보기</h1>
         <p className="text-gray-600 mb-8">다양한 옵션을 조절하며 confetti 효과를 테스트해보세요</p>
 
+        {/* Canvas 바운더리 (커스텀 캔버스 사용 시) */}
+        {useCustomCanvas && (
+          <div className="mb-8 relative">
+            <div className="bg-white rounded-lg shadow-lg p-4 border-4 border-purple-400 border-dashed">
+              <div className="absolute top-2 left-2 bg-purple-600 text-white px-3 py-1 rounded text-xs font-semibold">
+                Confetti Canvas 영역
+              </div>
+              <canvas
+                ref={setConfettiCanvasRef}
+                className="w-full h-96 bg-gradient-to-br from-purple-50 to-blue-50 rounded"
+              />
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* 왼쪽: 프리셋 & 특수 효과 */}
           <div className="space-y-6">
@@ -494,6 +510,39 @@ export function PreviewPage() {
               onCopyToClipboard={copyToClipboard}
               copiedPresetIndex={copiedPresetIndex}
             />
+
+            {/* Canvas 바운더리 제어 */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">Canvas 바운더리</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    특정 영역에서만 confetti 효과를 렌더링합니다
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setUseCustomCanvas(!useCustomCanvas)
+                    if (useCustomCanvas) {
+                      // Canvas 비활성화 시 null 설정
+                      setConfettiCanvasRef(null)
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    useCustomCanvas
+                      ? 'bg-purple-600 text-white hover:bg-purple-700'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {useCustomCanvas ? 'ON' : 'OFF'}
+                </button>
+              </div>
+              {useCustomCanvas && (
+                <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded text-sm text-purple-700">
+                  💡 <strong>Canvas 모드</strong>: 위의 보라색 테두리 영역에서만 confetti가 발생합니다.
+                </div>
+              )}
+            </div>
           </div>
 
           {/* 오른쪽: 커스텀 효과 설정 */}

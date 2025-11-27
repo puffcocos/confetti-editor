@@ -38,7 +38,7 @@ export function PreviewPage() {
   // 커스텀 색상 프리셋 (로컬 스토리지 동기화)
   const [customColorPresets, setCustomColorPresets] = useLocalStorage<CustomColorPreset[]>(
     'confetti-custom-color-presets',
-    [],
+    []
   )
   const [colorPresetName, setColorPresetName] = useState('')
 
@@ -48,7 +48,7 @@ export function PreviewPage() {
   // 커스텀 프리셋 저장 (로컬 스토리지 동기화)
   const [customPresets, setCustomPresets] = useLocalStorage<CustomPreset[]>(
     'confetti-custom-presets',
-    [],
+    []
   )
   const [presetName, setPresetName] = useState('')
   const [presetOptions, setPresetOptions] = useState<ConfettiOptions[]>([])
@@ -69,7 +69,7 @@ export function PreviewPage() {
   const [customShapePath, setCustomShapePath] = useState('')
   const [customShapePresets, setCustomShapePresets] = useLocalStorage<CustomShapePreset[]>(
     'confetti-custom-shape-presets',
-    [],
+    []
   )
   const [selectedCustomShapes, setSelectedCustomShapes] = useState<CustomShapePreset[]>([])
   const [shapePresetName, setShapePresetName] = useState('')
@@ -88,7 +88,7 @@ export function PreviewPage() {
     scalar,
     drift,
     ...(useCustomColors && customColors.length > 0 ? { colors: customColors } : {}),
-    ...((() => {
+    ...(() => {
       // 커스텀 파티클과 기본 도형 결합
       const allShapes: any[] = []
 
@@ -111,7 +111,7 @@ export function PreviewPage() {
 
         // 선택된 저장된 파티클도 추가
         if (selectedCustomShapes.length > 0) {
-          const customShapes = selectedCustomShapes.map(preset =>
+          const customShapes = selectedCustomShapes.map((preset) =>
             createShape({ path: preset.path, matrix: preset.matrix })
           )
           allShapes.push(...customShapes)
@@ -124,7 +124,7 @@ export function PreviewPage() {
       }
 
       return allShapes.length > 0 ? { shapes: allShapes } : {}
-    })()),
+    })(),
   }
 
   // 기본값으로 리셋
@@ -206,10 +206,7 @@ export function PreviewPage() {
   // 저장된 프리셋에 효과 추가
   const addEffectToSavedPreset = (presetIndex: number) => {
     const updatedPresets = [...customPresets]
-    updatedPresets[presetIndex].options = [
-      ...updatedPresets[presetIndex].options,
-      currentOptions,
-    ]
+    updatedPresets[presetIndex].options = [...updatedPresets[presetIndex].options, currentOptions]
     setCustomPresets(updatedPresets)
     alert(
       `"${customPresets[presetIndex].name}" 프리셋에 효과가 추가되었습니다! (총 ${updatedPresets[presetIndex].options.length}개 효과)`
@@ -407,9 +404,9 @@ export function PreviewPage() {
 
   // 커스텀 파티클 선택/해제 토글
   const toggleCustomShape = (preset: CustomShapePreset) => {
-    const isSelected = selectedCustomShapes.some(s => s.name === preset.name)
+    const isSelected = selectedCustomShapes.some((s) => s.name === preset.name)
     if (isSelected) {
-      setSelectedCustomShapes(selectedCustomShapes.filter(s => s.name !== preset.name))
+      setSelectedCustomShapes(selectedCustomShapes.filter((s) => s.name !== preset.name))
     } else {
       setSelectedCustomShapes([...selectedCustomShapes, preset])
       setUseCustomShapes(true)
@@ -525,7 +522,7 @@ export function PreviewPage() {
 
               {useCustomCanvas && (
                 <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded text-sm text-purple-700">
-                  💡 <strong>Canvas 모드</strong>: 보라색 테두리 영역에서만 confetti가 발생합니다. (스크롤 시 고정됨)
+                  💡 <strong>Canvas 모드</strong>: 보라색 테두리 영역에서만 confetti가 발생합니다.
                 </div>
               )}
             </div>

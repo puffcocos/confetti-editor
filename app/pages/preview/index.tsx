@@ -3,6 +3,7 @@ import type { Options as ConfettiOptions } from 'canvas-confetti'
 import { confettiPresets } from '~/shared/confetti/presets'
 import { useConfetti } from '~/shared/confetti/use-confetti'
 import { useLocalStorage } from '~/hooks/use-local-storage'
+import { useSessionStorage } from '~/hooks/use-session-storage'
 import { PresetSection } from './preset-section'
 import { CustomPresetSection } from './custom-preset-section'
 import { SettingsPanel } from './settings-panel'
@@ -16,8 +17,10 @@ export function PreviewPage() {
   const { fire, createShape, setConfettiCanvasRef } = useConfetti()
   const [selectedPreset, setSelectedPreset] = useState<string>('celebration')
   const [useCustomCanvas, setUseCustomCanvas] = useState(false)
-  const [canvasWidth, setCanvasWidth] = useState<number | null>(null) // null = w-full
-  const [canvasHeight, setCanvasHeight] = useState<number>(400)
+
+  // 세션 스토리지와 동기화되는 Canvas 크기 상태
+  const [canvasWidth, setCanvasWidth] = useSessionStorage<number | null>('confetti-canvas-width', null)
+  const [canvasHeight, setCanvasHeight] = useSessionStorage<number>('confetti-canvas-height', 400)
   const [maxCanvasWidth, setMaxCanvasWidth] = useState<number>(472) // 동적 최대 너비
   const canvasContainerRef = useRef<HTMLDivElement>(null)
 

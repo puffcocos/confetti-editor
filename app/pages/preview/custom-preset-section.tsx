@@ -175,7 +175,7 @@ export function CustomPresetSection({
                       className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs font-medium"
                       title="현재 우측 설정 메뉴의 옵션을 이 프리셋에 추가합니다"
                     >
-                      + 효과 추가
+                      + {preset.name} 에 효과 추가
                     </button>
                   </div>
                   <div className="space-y-2">

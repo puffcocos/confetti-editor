@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { Options as ConfettiOptions } from 'canvas-confetti'
 import { confettiPresets } from '~/shared/confetti/presets'
 import { useConfetti } from '~/shared/confetti/use-confetti'
@@ -16,6 +16,10 @@ export function PreviewPage() {
   const { fire, createShape, setConfettiCanvasRef } = useConfetti()
   const [selectedPreset, setSelectedPreset] = useState<string>('celebration')
   const [useCustomCanvas, setUseCustomCanvas] = useState(false)
+  const [canvasWidth, setCanvasWidth] = useState<number | null>(null) // null = w-full
+  const [canvasHeight, setCanvasHeight] = useState<number>(400)
+  const [maxCanvasWidth, setMaxCanvasWidth] = useState<number>(472) // 동적 최대 너비
+  const canvasContainerRef = useRef<HTMLDivElement>(null)
 
   // 커스텀 옵션 상태
   const [particleCount, setParticleCount] = useState<number>(DEFAULT_VALUES.particleCount)
@@ -126,6 +130,27 @@ export function PreviewPage() {
       return allShapes.length > 0 ? { shapes: allShapes } : {}
     })(),
   }
+
+  // Canvas 최대 너비 계산 (viewport 크기에 따라 동적으로 업데이트)
+  useEffect(() => {
+    const updateMaxWidth = () => {
+      if (canvasContainerRef.current) {
+        const containerWidth = canvasContainerRef.current.offsetWidth
+        // 컨테이너 너비에서 Sticky Canvas 영역의 패딩과 border를 빼기
+        // p-4 (16px * 2) + border-4 (4px * 2) = 40px
+        const maxWidth = containerWidth - 40
+        setMaxCanvasWidth(maxWidth)
+        // 현재 너비가 새로운 최대값을 초과하면 조정
+        if (canvasWidth !== null && canvasWidth > maxWidth) {
+          setCanvasWidth(maxWidth)
+        }
+      }
+    }
+
+    updateMaxWidth()
+    window.addEventListener('resize', updateMaxWidth)
+    return () => window.removeEventListener('resize', updateMaxWidth)
+  }, [canvasWidth])
 
   // 기본값으로 리셋
   const resetToDefaults = () => {
@@ -494,7 +519,7 @@ export function PreviewPage() {
             />
 
             {/* Canvas 바운더리 제어 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div ref={canvasContainerRef} className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h2 className="text-xl font-semibold text-gray-800">Canvas 바운더리</h2>
@@ -521,9 +546,50 @@ export function PreviewPage() {
               </div>
 
               {useCustomCanvas && (
-                <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded text-sm text-purple-700">
-                  💡 <strong>Canvas 모드</strong>: 보라색 테두리 영역에서만 confetti가 발생합니다.
-                </div>
+                <>
+                  <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded text-sm text-purple-700">
+                    💡 <strong>Canvas 모드</strong>: 보라색 테두리 영역에서만 confetti가 발생합니다.
+                  </div>
+
+                  {/* Canvas 크기 조절 */}
+                  <div className="mt-3 space-y-4">
+                    {/* 너비 조절 */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Canvas 너비: {canvasWidth === null ? '100%' : `${canvasWidth}px`}
+                      </label>
+                      <input
+                        type="range"
+                        min="100"
+                        max={maxCanvasWidth + 1}
+                        step="1"
+                        value={canvasWidth ?? maxCanvasWidth + 1}
+                        onChange={(e) => {
+                          const value = Number(e.target.value)
+                          // 최대값+1이면 100% (null), 그 외에는 픽셀 값
+                          setCanvasWidth(value > maxCanvasWidth ? null : value)
+                        }}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                      />
+                    </div>
+
+                    {/* 높이 조절 */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Canvas 높이: {canvasHeight}px
+                      </label>
+                      <input
+                        type="range"
+                        min="200"
+                        max="800"
+                        step="50"
+                        value={canvasHeight}
+                        onChange={(e) => setCanvasHeight(Number(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                      />
+                    </div>
+                  </div>
+                </>
               )}
             </div>
 
@@ -536,7 +602,13 @@ export function PreviewPage() {
                   </div>
                   <canvas
                     ref={setConfettiCanvasRef}
-                    className="w-full h-96 bg-gradient-to-br from-purple-50 to-blue-50 rounded"
+                    style={{
+                      ...(canvasWidth !== null && { width: `${canvasWidth}px` }),
+                      height: `${canvasHeight}px`,
+                    }}
+                    className={`bg-gradient-to-br from-purple-50 to-blue-50 rounded ${
+                      canvasWidth === null ? 'w-full' : ''
+                    }`}
                   />
                 </div>
               </div>

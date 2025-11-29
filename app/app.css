@@ -1,8 +1,8 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 html,
@@ -12,4 +12,63 @@ body {
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
+}
+
+/* 회전하는 dotted border 애니메이션 */
+@keyframes spin-border {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 100;
+  }
+}
+
+.animate-spin-border {
+  position: relative;
+  overflow: visible;
+}
+
+.animate-spin-border::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, rgb(216, 180, 254) 50%, transparent 50%),
+    linear-gradient(90deg, rgb(216, 180, 254) 50%, transparent 50%),
+    linear-gradient(0deg, rgb(216, 180, 254) 50%, transparent 50%),
+    linear-gradient(0deg, rgb(216, 180, 254) 50%, transparent 50%);
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size: 15px 4px, 15px 4px, 4px 15px, 4px 15px;
+  background-position: 0 0, 0 100%, 0 0, 100% 0;
+  animation: spin-border 1s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spin-border {
+  0% {
+    background-position: 0 0, 0 100%, 0 0, 100% 0;
+  }
+  100% {
+    background-position: 15px 0, -15px 100%, 0 -15px, 100% 15px;
+  }
+}
+
+/* Fade-in 애니메이션 */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
 }

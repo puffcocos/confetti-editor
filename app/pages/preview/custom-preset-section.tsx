@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Options as ConfettiOptions } from 'canvas-confetti'
 import type { CustomPreset } from './types'
+import { FireButton } from './fire-button'
 
 interface CustomPresetSectionProps {
   presetOptions: ConfettiOptions[]
@@ -8,15 +9,18 @@ interface CustomPresetSectionProps {
   customPresets: CustomPreset[]
   editingPresetIndex: number | null
   editingEffectIndex: number | null
+  activeCustomPreset: number | null
+  useCustomCanvas: boolean
   onAddToPreset: () => void
   onRemoveFromPreset: (index: number) => void
   onPresetNameChange: (name: string) => void
   onSaveCustomPreset: () => void
-  onFireCustomPreset: (preset: CustomPreset) => void
+  onSelectCustomPreset: (index: number) => void
   onDeleteCustomPreset: (index: number) => void
   onLoadEffectToSettings: (presetIndex: number, effectIndex: number) => void
   onAddEffectToSavedPreset: (presetIndex: number) => void
   onCopyToClipboard: (text: string, type: 'main' | number) => Promise<void>
+  onFireCustomPreset: () => void
   copiedPresetIndex: number | null
 }
 
@@ -29,15 +33,18 @@ export function CustomPresetSection({
   customPresets,
   editingPresetIndex,
   editingEffectIndex,
+  activeCustomPreset,
+  useCustomCanvas,
   onAddToPreset,
   onRemoveFromPreset,
   onPresetNameChange,
   onSaveCustomPreset,
-  onFireCustomPreset,
+  onSelectCustomPreset,
   onDeleteCustomPreset,
   onLoadEffectToSettings,
   onAddEffectToSavedPreset,
   onCopyToClipboard,
+  onFireCustomPreset,
   copiedPresetIndex,
 }: CustomPresetSectionProps) {
   const [selectedPresetForCode, setSelectedPresetForCode] = useState<number | null>(null)
@@ -111,32 +118,41 @@ export function CustomPresetSection({
       {customPresets.length > 0 && (
         <div className="space-y-3">
           <label className="block text-sm font-medium text-gray-700 mb-2">저장된 프리셋</label>
-          {customPresets.map((preset, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg transition-colors">
-              <div className="flex items-center gap-2 p-3">
-                <button
-                  onClick={() => onFireCustomPreset(preset)}
-                  className="flex-1 text-left px-3 py-2 bg-purple-100 text-purple-800 rounded hover:bg-purple-200 transition-colors font-medium text-sm"
-                >
-                  {preset.name}{' '}
-                  <span className="text-xs text-purple-600">({preset.options.length}개 효과)</span>
-                </button>
-                <button
-                  onClick={() =>
-                    setSelectedPresetForCode(selectedPresetForCode === index ? null : index)
-                  }
-                  className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm font-medium"
-                  title="코드 보기"
-                >
-                  {selectedPresetForCode === index ? '코드 숨기기' : '코드 보기'}
-                </button>
-                <button
-                  onClick={() => onDeleteCustomPreset(index)}
-                  className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm font-medium"
-                >
-                  삭제
-                </button>
-              </div>
+          {customPresets.map((preset, index) => {
+            const isActive = activeCustomPreset === index
+
+            return (
+              <div key={index} className="bg-gray-50 rounded-lg transition-colors">
+                <div className="flex items-center gap-2 p-3">
+                  <button
+                    onClick={() => onSelectCustomPreset(index)}
+                    className={`flex-1 text-left px-3 py-2 rounded font-medium text-sm transition-all ${
+                      isActive
+                        ? 'bg-purple-50 text-purple-700 shadow-md animate-spin-border'
+                        : 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+                    }`}
+                  >
+                    {preset.name}{' '}
+                    <span className={isActive ? 'text-purple-600' : 'text-purple-600'}>
+                      ({preset.options.length}개 효과)
+                    </span>
+                  </button>
+                  <button
+                    onClick={() =>
+                      setSelectedPresetForCode(selectedPresetForCode === index ? null : index)
+                    }
+                    className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm font-medium"
+                    title="코드 보기"
+                  >
+                    {selectedPresetForCode === index ? '코드 숨기기' : '코드 보기'}
+                  </button>
+                  <button
+                    onClick={() => onDeleteCustomPreset(index)}
+                    className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm font-medium"
+                  >
+                    삭제
+                  </button>
+                </div>
 
               {/* 코드 미리보기 */}
               {selectedPresetForCode === index && (
@@ -207,7 +223,15 @@ export function CustomPresetSection({
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
+
+          {/* Fire 버튼 */}
+          {!useCustomCanvas && activeCustomPreset !== null && (
+            <div className="mt-4 animate-fade-in">
+              <FireButton onFire={onFireCustomPreset} />
+            </div>
+          )}
         </div>
       )}
 

@@ -7,6 +7,7 @@ import { useSessionStorage } from '~/hooks/use-session-storage'
 import { PresetSection } from './preset-section'
 import { CustomPresetSection } from './custom-preset-section'
 import { SettingsPanel } from './settings-panel'
+import { FireButton } from './fire-button'
 import { DEFAULT_VALUES } from './constants'
 import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types'
 
@@ -15,11 +16,17 @@ import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types
  */
 export function PreviewPage() {
   const { fire, createShape, setConfettiCanvasRef } = useConfetti()
-  const [selectedPreset, setSelectedPreset] = useState<string>('celebration')
   const [useCustomCanvas, setUseCustomCanvas] = useState(false)
 
+  // 활성화된 프리셋 상태
+  const [activeBuiltInPreset, setActiveBuiltInPreset] = useState<string | null>(null)
+  const [activeCustomPreset, setActiveCustomPreset] = useState<number | null>(null)
+
   // 세션 스토리지와 동기화되는 Canvas 크기 상태
-  const [canvasWidth, setCanvasWidth] = useSessionStorage<number | null>('confetti-canvas-width', null)
+  const [canvasWidth, setCanvasWidth] = useSessionStorage<number | null>(
+    'confetti-canvas-width',
+    null
+  )
   const [canvasHeight, setCanvasHeight] = useSessionStorage<number>('confetti-canvas-height', 400)
   const [maxCanvasWidth, setMaxCanvasWidth] = useState<number>(472) // 동적 최대 너비
   const canvasContainerRef = useRef<HTMLDivElement>(null)
@@ -176,11 +183,43 @@ export function PreviewPage() {
     setSelectedCustomShapes([])
   }
 
-  // 프리셋 실행
-  const firePreset = (presetName: string) => {
-    setSelectedPreset(presetName)
+  // 기본 프리셋 선택 및 즉시 실행
+  const selectBuiltInPreset = (presetName: string) => {
+    setActiveCustomPreset(null) // 커스텀 프리셋 비활성화
+
+    // 즉시 프리셋 실행
     const preset = confettiPresets[presetName as keyof typeof confettiPresets]
     fire(preset)
+
+    // 클릭 시 짧은 활성화 효과 (보랏빛 표시)
+    setActiveBuiltInPreset(presetName)
+    setTimeout(() => {
+      setActiveBuiltInPreset(null)
+    }, 200)
+  }
+
+  // 활성화된 프리셋 또는 커스텀 효과 실행
+  const fireActivePreset = () => {
+    if (activeBuiltInPreset) {
+      // 기본 프리셋 실행
+      const preset = confettiPresets[activeBuiltInPreset as keyof typeof confettiPresets]
+      fire(preset)
+    } else if (activeCustomPreset !== null) {
+      // 커스텀 프리셋 실행
+      const preset = customPresets[activeCustomPreset]
+      fire(preset.options)
+    } else {
+      // 프리셋이 선택되지 않은 경우 우측 커스텀 효과 실행
+      fire(currentOptions)
+    }
+  }
+
+  // 커스텀 프리셋만 실행 (커스텀 프리셋 섹션의 fire! 버튼용)
+  const fireCustomPreset = () => {
+    if (activeCustomPreset !== null) {
+      const preset = customPresets[activeCustomPreset]
+      fire(preset.options)
+    }
   }
 
   // 커스텀 옵션으로 실행
@@ -221,9 +260,15 @@ export function PreviewPage() {
     alert(`"${presetName}" 프리셋이 저장되었습니다! (${presetOptions.length}개 효과)`)
   }
 
-  // 커스텀 프리셋 실행
-  const fireCustomPreset = (preset: CustomPreset) => {
-    fire(preset.options)
+  // 커스텀 프리셋 선택 (활성화만 하고 실행하지 않음)
+  const selectCustomPreset = (index: number) => {
+    // 같은 프리셋을 다시 클릭하면 선택 해제
+    if (activeCustomPreset === index) {
+      setActiveCustomPreset(null)
+    } else {
+      setActiveCustomPreset(index)
+      setActiveBuiltInPreset(null) // 기본 프리셋 비활성화
+    }
   }
 
   // 커스텀 프리셋 삭제
@@ -498,8 +543,8 @@ export function PreviewPage() {
           {/* 왼쪽: 프리셋 & 특수 효과 */}
           <div className="space-y-6">
             <PresetSection
-              selectedPreset={selectedPreset}
-              onFirePreset={firePreset}
+              activePreset={activeBuiltInPreset}
+              onSelectPreset={selectBuiltInPreset}
               onCopyPreset={copyPresetToCustom}
             />
 
@@ -509,15 +554,18 @@ export function PreviewPage() {
               customPresets={customPresets}
               editingPresetIndex={editingPresetIndex}
               editingEffectIndex={editingEffectIndex}
+              activeCustomPreset={activeCustomPreset}
+              useCustomCanvas={useCustomCanvas}
               onAddToPreset={addToPreset}
               onRemoveFromPreset={removeFromPreset}
               onPresetNameChange={setPresetName}
               onSaveCustomPreset={saveCustomPreset}
-              onFireCustomPreset={fireCustomPreset}
+              onSelectCustomPreset={selectCustomPreset}
               onDeleteCustomPreset={deleteCustomPreset}
               onLoadEffectToSettings={loadEffectToSettings}
               onAddEffectToSavedPreset={addEffectToSavedPreset}
               onCopyToClipboard={copyToClipboard}
+              onFireCustomPreset={fireCustomPreset}
               copiedPresetIndex={copiedPresetIndex}
             />
 
@@ -592,6 +640,11 @@ export function PreviewPage() {
                       />
                     </div>
                   </div>
+
+                  {/* 실행 버튼 */}
+                  <div className="mt-4">
+                    <FireButton onFire={fireActivePreset} />
+                  </div>
                 </>
               )}
             </div>
@@ -600,8 +653,15 @@ export function PreviewPage() {
             {useCustomCanvas && (
               <div className="sticky top-8 z-20">
                 <div className="bg-white rounded-lg shadow-lg p-4 border-4 border-purple-400 border-dashed">
-                  <div className="absolute top-2 left-2 bg-purple-600 text-white px-3 py-1 rounded text-xs font-semibold z-10">
-                    Confetti Canvas 영역
+                  <div className="absolute top-2 left-2 flex items-center gap-2 z-10">
+                    <div className="bg-purple-600 text-white px-3 py-1 rounded text-xs font-semibold">
+                      Confetti Canvas 영역
+                    </div>
+                    <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs">
+                      {activeCustomPreset !== null
+                        ? `${customPresets[activeCustomPreset].name} 프리셋`
+                        : '커스텀 효과'}
+                    </div>
                   </div>
                   <canvas
                     ref={setConfettiCanvasRef}
@@ -644,6 +704,7 @@ export function PreviewPage() {
             customColorPresets={customColorPresets}
             colorPresetName={colorPresetName}
             editingColorPresetIndex={editingColorPresetIndex}
+            useCustomCanvas={useCustomCanvas}
             onParticleCountChange={setParticleCount}
             onSpreadChange={setSpread}
             onStartVelocityChange={setStartVelocity}

@@ -3,6 +3,7 @@ import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types
 import { DEFAULT_VALUES, OPTION_INFO, COLOR_PRESETS } from './constants'
 import { EXAMPLE_SHAPE_PRESETS } from './shape-presets'
 import { SvgPathPreview } from '~/components/svg-path-preview'
+import { FireButton } from './fire-button'
 
 interface SettingsPanelProps {
   // 옵션 상태
@@ -44,6 +45,9 @@ interface SettingsPanelProps {
   selectedCustomShapes: CustomShapePreset[]
   shapePresetName: string
   editingShapePresetIndex: number | null
+
+  // Canvas 바운더리 상태
+  useCustomCanvas: boolean
 
   // 상태 업데이트 함수
   onParticleCountChange: (value: number) => void
@@ -124,6 +128,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
     selectedCustomShapes,
     shapePresetName,
     editingShapePresetIndex,
+    useCustomCanvas,
     onParticleCountChange,
     onSpreadChange,
     onStartVelocityChange,
@@ -615,7 +620,12 @@ export function SettingsPanel(props: SettingsPanelProps) {
                 <div className="p-3 bg-gray-50 border border-gray-300 rounded">
                   <label className="block text-xs font-medium text-gray-600 mb-2">미리보기</label>
                   <div className="flex items-center justify-center bg-white rounded p-4 border border-gray-200">
-                    <SvgPathPreview path={customShapePath} width={100} height={100} className="text-purple-600" />
+                    <SvgPathPreview
+                      path={customShapePath}
+                      width={100}
+                      height={100}
+                      className="text-purple-600"
+                    />
                   </div>
                 </div>
               )}
@@ -745,13 +755,12 @@ export function SettingsPanel(props: SettingsPanelProps) {
         </div>
       </div>
 
-      {/* 커스텀 실행 버튼 */}
-      <button
-        onClick={onFireCustom}
-        className="w-full px-6 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-bold text-lg hover:from-orange-600 hover:to-red-600 transition-all shadow-lg"
-      >
-        🎉 실행! 🎉
-      </button>
+      {/* 커스텀 실행 버튼 (Canvas 바운더리 OFF일 때만 표시) */}
+      {!useCustomCanvas && (
+        <div className="animate-fade-in">
+          <FireButton onFire={onFireCustom} />
+        </div>
+      )}
 
       {/* 코드 미리보기 */}
       <div className="mt-6 p-4 bg-gray-50 rounded-lg">

@@ -785,7 +785,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => setIsCodePreviewExpanded(!isCodePreviewExpanded)}
-            className="relative flex items-center text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors pl-5"
+            className="relative flex items-center text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors pl-5 cursor-pointer"
           >
             <span
               className={`absolute left-0 text-xs transition-transform duration-200 ${

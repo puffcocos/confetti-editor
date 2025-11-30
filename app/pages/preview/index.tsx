@@ -53,6 +53,7 @@ export function PreviewPage() {
     []
   )
   const [colorPresetName, setColorPresetName] = useState('')
+  const [activeColorPreset, setActiveColorPreset] = useState<number | null>(null)
 
   // 모양 옵션
   const [shapes, setShapes] = useState<string[]>(['square', 'circle'])
@@ -396,9 +397,10 @@ export function PreviewPage() {
   }
 
   // 커스텀 색상 프리셋 적용
-  const applyCustomColorPreset = (preset: CustomColorPreset) => {
+  const applyCustomColorPreset = (preset: CustomColorPreset, index: number) => {
     setCustomColors(preset.colors)
     setUseCustomColors(true)
+    setActiveColorPreset(index)
   }
 
   // 커스텀 색상 프리셋 삭제
@@ -809,6 +811,7 @@ export function PreviewPage() {
             customColorPresets={customColorPresets}
             colorPresetName={colorPresetName}
             editingColorPresetIndex={editingColorPresetIndex}
+            activeColorPreset={activeColorPreset}
             useCustomCanvas={useCustomCanvas}
             onParticleCountChange={setParticleCount}
             onSpreadChange={setSpread}

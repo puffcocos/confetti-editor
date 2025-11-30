@@ -38,6 +38,7 @@ interface SettingsPanelProps {
   customColorPresets: CustomColorPreset[]
   colorPresetName: string
   editingColorPresetIndex: number | null
+  activeColorPreset: number | null
 
   // 커스텀 파티클
   useCustomShapes: boolean
@@ -75,7 +76,7 @@ interface SettingsPanelProps {
   onCopyToClipboard: (text: string, type: 'main' | number) => Promise<void>
   onColorPresetNameChange: (value: string) => void
   onSaveCustomColorPreset: () => void
-  onApplyCustomColorPreset: (preset: CustomColorPreset) => void
+  onApplyCustomColorPreset: (preset: CustomColorPreset, index: number) => void
   onDeleteCustomColorPreset: (index: number) => void
   onStartEditingColorPreset: (index: number) => void
   onUpdateCustomColorPreset: () => void
@@ -125,6 +126,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
     customColorPresets,
     colorPresetName,
     editingColorPresetIndex,
+    activeColorPreset,
     useCustomShapes,
     customShapePath,
     customShapePresets,
@@ -444,22 +446,33 @@ export function SettingsPanel(props: SettingsPanelProps) {
                 {/* 저장된 커스텀 프리셋 목록 */}
                 {customColorPresets.length > 0 && (
                   <div className="space-y-1">
-                    {customColorPresets.map((preset, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center gap-2 p-2 rounded border transition-colors ${
-                          editingColorPresetIndex === index
-                            ? 'bg-yellow-50 border-yellow-400'
-                            : 'bg-white border-gray-300'
-                        }`}
-                      >
-                        <button
-                          onClick={() => onApplyCustomColorPreset(preset)}
-                          className="flex-1 text-left text-xs font-semibold text-gray-800 hover:text-gray-900"
+                    {customColorPresets.map((preset, index) => {
+                      const isActive = activeColorPreset === index
+
+                      return (
+                        <div
+                          key={index}
+                          className={`flex items-center gap-2 p-2 rounded border transition-all ${
+                            isActive
+                              ? 'bg-purple-50 border-purple-400 animate-spin-border'
+                              : editingColorPresetIndex === index
+                              ? 'bg-yellow-50 border-yellow-400'
+                              : 'bg-white border-gray-300'
+                          }`}
                         >
-                          {preset.name}
-                          <span className="ml-1 text-gray-600">({preset.colors.length}개)</span>
-                        </button>
+                          <button
+                            onClick={() => onApplyCustomColorPreset(preset, index)}
+                            className={`flex-1 text-left text-xs font-semibold transition-colors ${
+                              isActive
+                                ? 'text-purple-700'
+                                : 'text-gray-800 hover:text-gray-900'
+                            }`}
+                          >
+                            {preset.name}
+                            <span className={`ml-1 ${isActive ? 'text-purple-600' : 'text-gray-600'}`}>
+                              ({preset.colors.length}개)
+                            </span>
+                          </button>
                         <button
                           onClick={() => onStartEditingColorPreset(index)}
                           className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs"
@@ -474,7 +487,8 @@ export function SettingsPanel(props: SettingsPanelProps) {
                           삭제
                         </button>
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
 

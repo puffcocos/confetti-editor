@@ -44,7 +44,7 @@ export function PreviewPage() {
 
   // 색상 옵션
   const [useCustomColors, setUseCustomColors] = useState(false)
-  const [customColors, setCustomColors] = useState<string[]>(['#ff0000', '#00ff00', '#0000ff'])
+  const [customColors, setCustomColors] = useState<string[]>([])
   const [colorInput, setColorInput] = useState('#ff0000')
 
   // 커스텀 색상 프리셋 (로컬 스토리지 동기화)
@@ -440,6 +440,7 @@ export function PreviewPage() {
     setCustomColorPresets(updatedPresets)
     setColorPresetName('')
     setEditingColorPresetIndex(null)
+    setCustomColors([])
     alert('색상 프리셋이 업데이트되었습니다!')
   }
 
@@ -447,7 +448,7 @@ export function PreviewPage() {
   const cancelEditingColorPreset = () => {
     setEditingColorPresetIndex(null)
     setColorPresetName('')
-    setCustomColors(['#ff0000', '#00ff00', '#0000ff'])
+    setCustomColors([])
   }
 
   // 커스텀 파티클 프리셋에 추가

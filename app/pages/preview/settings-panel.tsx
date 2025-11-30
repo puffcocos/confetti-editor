@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Options as ConfettiOptions } from 'canvas-confetti'
 import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types'
-import { DEFAULT_VALUES, OPTION_INFO, COLOR_PRESETS } from './constants'
+import { DEFAULT_VALUES, OPTION_INFO } from './constants'
 import { EXAMPLE_SHAPE_PRESETS } from './shape-presets'
 import { SvgPathPreview } from '~/components/svg-path-preview'
 import { FireButton } from './fire-button'
@@ -181,12 +181,6 @@ export function SettingsPanel(props: SettingsPanelProps) {
 
   const removeColor = (color: string) => {
     onCustomColorsChange(customColors.filter((c) => c !== color))
-  }
-
-  const applyColorPreset = (presetName: keyof typeof COLOR_PRESETS) => {
-    const preset = COLOR_PRESETS[presetName]
-    onCustomColorsChange(preset as unknown as string[])
-    onUseCustomColorsChange(true)
   }
 
   const toggleShape = (shape: string) => {
@@ -384,170 +378,232 @@ export function SettingsPanel(props: SettingsPanelProps) {
           </div>
 
           {useCustomColors && (
-            <div className="space-y-3">
-              {/* 기본 색상 프리셋 */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  기본 색상 프리셋
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {Object.keys(COLOR_PRESETS).map((presetName) => (
-                    <button
-                      key={presetName}
-                      onClick={() => applyColorPreset(presetName as keyof typeof COLOR_PRESETS)}
-                      className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-xs font-semibold transition-colors capitalize text-gray-800 hover:text-gray-900"
-                    >
-                      {presetName}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div>
+              {/* 색상 프리셋 */}
+              <label className="block text-xs font-medium text-gray-600 mb-2">
+                색상 프리셋
+              </label>
 
-              {/* 커스텀 색상 프리셋 */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  커스텀 색상 프리셋
-                </label>
-
-                {/* 프리셋 저장/업데이트 */}
-                <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={colorPresetName}
-                    onChange={(e) => onColorPresetNameChange(e.target.value)}
-                    placeholder="프리셋 이름"
-                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs text-gray-800"
-                  />
-                  {editingColorPresetIndex !== null ? (
-                    <>
-                      <button
-                        onClick={onUpdateCustomColorPreset}
-                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs font-medium"
-                      >
-                        업데이트
-                      </button>
-                      <button
-                        onClick={onCancelEditingColorPreset}
-                        className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-xs font-medium"
-                      >
-                        취소
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={onSaveCustomColorPreset}
-                      className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-xs font-medium"
-                    >
-                      저장
-                    </button>
-                  )}
-                </div>
-
+              <div className="space-y-3">
                 {/* 저장된 커스텀 프리셋 목록 */}
                 {customColorPresets.length > 0 && (
-                  <div className="space-y-1">
+                  <div className="space-y-3">
                     {customColorPresets.map((preset, index) => {
                       const isActive = activeColorPreset === index
+                      const isEditing = editingColorPresetIndex === index
 
                       return (
                         <div
                           key={index}
-                          className={`flex items-center gap-2 p-2 rounded border transition-all ${
-                            isActive
-                              ? 'bg-purple-50 border-purple-400 animate-spin-border'
-                              : editingColorPresetIndex === index
-                              ? 'bg-yellow-50 border-yellow-400'
-                              : 'bg-white border-gray-300'
+                          className={`bg-gray-50 rounded-lg transition-colors ${
+                            isEditing ? 'border-2 border-yellow-400' : ''
                           }`}
                         >
-                          <button
-                            onClick={() => onApplyCustomColorPreset(preset, index)}
-                            className={`flex-1 text-left text-xs font-semibold transition-colors ${
-                              isActive
-                                ? 'text-purple-700'
-                                : 'text-gray-800 hover:text-gray-900'
-                            }`}
-                          >
-                            {preset.name}
-                            <span className={`ml-1 ${isActive ? 'text-purple-600' : 'text-gray-600'}`}>
-                              ({preset.colors.length}개)
-                            </span>
-                          </button>
-                        <button
-                          onClick={() => onStartEditingColorPreset(index)}
-                          className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs"
-                          title="이 프리셋 수정"
-                        >
-                          수정
-                        </button>
-                        <button
-                          onClick={() => onDeleteCustomColorPreset(index)}
-                          className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs"
-                        >
-                          삭제
-                        </button>
-                      </div>
+                          <div className="flex items-center gap-2 p-3">
+                            <button
+                              onClick={() => {
+                                if (!isEditing) {
+                                  onApplyCustomColorPreset(preset, index)
+                                }
+                              }}
+                              disabled={isEditing}
+                              className={`flex-1 text-left px-3 py-2 rounded font-medium text-sm transition-all ${
+                                isActive
+                                  ? 'bg-purple-50 text-purple-700 shadow-md animate-spin-border'
+                                  : isEditing
+                                  ? 'bg-yellow-50 text-yellow-800'
+                                  : 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+                              }`}
+                            >
+                              {preset.name}{' '}
+                              <span className={isActive ? 'text-purple-600' : isEditing ? 'text-yellow-600' : 'text-purple-600'}>
+                                ({preset.colors.length}개 색상)
+                              </span>
+                            </button>
+                            {!isEditing && (
+                              <button
+                                onClick={() => onStartEditingColorPreset(index)}
+                                className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm font-medium"
+                                title="이 프리셋 수정"
+                              >
+                                수정
+                              </button>
+                            )}
+                            <button
+                              onClick={() => onDeleteCustomColorPreset(index)}
+                              className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm font-medium"
+                            >
+                              삭제
+                            </button>
+                          </div>
+
+                          {/* 색상 칩 미리보기 */}
+                          <div className="px-3 pb-3 pt-2 border-t border-gray-200">
+                            <label className="block text-xs font-medium text-gray-700 mb-2">
+                              색상 ({isEditing ? customColors.length : preset.colors.length}개)
+                            </label>
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              {(isEditing ? customColors : preset.colors).map((color, colorIndex) => (
+                                <div
+                                  key={colorIndex}
+                                  className="flex items-center gap-1 bg-gray-100 rounded px-2 py-1"
+                                >
+                                  <div
+                                    className="w-4 h-4 rounded border border-gray-300"
+                                    style={{ backgroundColor: color }}
+                                  />
+                                  <span className="text-xs text-gray-800 font-medium">{color}</span>
+                                  {isEditing && (
+                                    <button
+                                      onClick={() => removeColor(color)}
+                                      className="ml-1 text-red-500 hover:text-red-700 text-xs font-bold"
+                                      title="색상 제거"
+                                    >
+                                      ×
+                                    </button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* 편집 모드일 때만 색상 추가 UI 표시 */}
+                            {isEditing && (
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-2">색상 추가</label>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="color"
+                                    value={colorInput}
+                                    onChange={(e) => onColorInputChange(e.target.value)}
+                                    className="w-12 h-10 rounded cursor-pointer"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={colorInput}
+                                    onChange={(e) => onColorInputChange(e.target.value)}
+                                    placeholder="#ff0000"
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder:text-gray-400"
+                                  />
+                                  <button
+                                    onClick={addColor}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
+                                  >
+                                    추가
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       )
                     })}
                   </div>
                 )}
 
-                {customColorPresets.length === 0 && (
-                  <p className="text-xs text-gray-400 italic">
-                    현재 색상 조합을 저장하여 나중에 재사용하세요
-                  </p>
-                )}
-              </div>
+                {/* 새 프리셋 저장 */}
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  {editingColorPresetIndex === null && (
+                    <>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">새 프리셋 만들기</label>
 
-              {/* 현재 색상 목록 */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">현재 색상</label>
-                <div className="flex flex-wrap gap-2">
-                  {customColors.map((color) => (
-                    <div
-                      key={color}
-                      className="flex items-center gap-1 bg-gray-100 rounded px-2 py-1"
-                    >
-                      <div
-                        className="w-4 h-4 rounded border border-gray-300"
-                        style={{ backgroundColor: color }}
-                      />
-                      <span className="text-xs text-gray-800 font-medium">{color}</span>
+                      {/* 색상 추가 */}
+                      <div className="mb-3">
+                        <div className="flex gap-2 mb-3">
+                          <input
+                            type="color"
+                            value={colorInput}
+                            onChange={(e) => onColorInputChange(e.target.value)}
+                            className="w-12 h-10 rounded cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={colorInput}
+                            onChange={(e) => onColorInputChange(e.target.value)}
+                            placeholder="#ff0000"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder:text-gray-400"
+                          />
+                          <button
+                            onClick={addColor}
+                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
+                          >
+                            추가
+                          </button>
+                        </div>
+
+                        {/* 현재 색상 목록 */}
+                        {customColors.length > 0 && (
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-2">
+                              현재 색상 ({customColors.length}개)
+                            </label>
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              {customColors.map((color, colorIndex) => (
+                                <div
+                                  key={colorIndex}
+                                  className="flex items-center gap-1 bg-gray-100 rounded px-2 py-1"
+                                >
+                                  <div
+                                    className="w-4 h-4 rounded border border-gray-300"
+                                    style={{ backgroundColor: color }}
+                                  />
+                                  <span className="text-xs text-gray-800 font-medium">{color}</span>
+                                  <button
+                                    onClick={() => removeColor(color)}
+                                    className="ml-1 text-red-500 hover:text-red-700 text-xs font-bold"
+                                    title="색상 제거"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 프리셋 이름 및 저장 */}
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={colorPresetName}
+                          onChange={(e) => onColorPresetNameChange(e.target.value)}
+                          placeholder="프리셋 이름 입력"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm text-gray-800"
+                        />
+                        <button
+                          onClick={onSaveCustomColorPreset}
+                          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm font-medium"
+                        >
+                          저장
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* 편집 모드일 때는 업데이트/취소 버튼만 */}
+                  {editingColorPresetIndex !== null && (
+                    <div className="flex gap-2">
                       <button
-                        onClick={() => removeColor(color)}
-                        className="ml-1 text-red-500 hover:text-red-700 text-xs font-bold"
+                        onClick={onUpdateCustomColorPreset}
+                        className="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm font-medium"
                       >
-                        ×
+                        업데이트
+                      </button>
+                      <button
+                        onClick={onCancelEditingColorPreset}
+                        className="flex-1 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-sm font-medium"
+                      >
+                        취소
                       </button>
                     </div>
-                  ))}
+                  )}
                 </div>
-              </div>
 
-              {/* 색상 추가 */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">색상 추가</label>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    value={colorInput}
-                    onChange={(e) => onColorInputChange(e.target.value)}
-                    className="w-12 h-10 rounded cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={colorInput}
-                    onChange={(e) => onColorInputChange(e.target.value)}
-                    placeholder="#ff0000"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm text-gray-800 placeholder:text-gray-400"
-                  />
-                  <button
-                    onClick={addColor}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
-                  >
-                    추가
-                  </button>
-                </div>
+                {customColorPresets.length === 0 && (
+                  <p className="text-xs text-gray-400 italic">
+                    💡 색상 조합을 만들어 프리셋으로 저장하세요
+                  </p>
+                )}
               </div>
             </div>
           )}

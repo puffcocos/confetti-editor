@@ -636,8 +636,9 @@ export function PreviewPage() {
         jsonString = fireMatch[1]
       }
 
-      // JSON 파싱
-      const parsed = JSON.parse(jsonString)
+      // Function 생성자를 사용하여 안전하게 JavaScript 객체 파싱
+      // eval()보다 안전하고, JSON.parse()보다 유연함 (따옴표 없는 키도 파싱 가능)
+      const parsed = new Function(`return ${jsonString}`)()
 
       // 배열인지 확인
       if (!Array.isArray(parsed)) {
@@ -655,7 +656,7 @@ export function PreviewPage() {
       setPresetOptions([...presetOptions, ...parsed])
     } catch (error) {
       if (error instanceof SyntaxError) {
-        throw new Error('유효하지 않은 JSON 형식입니다. 코드를 확인해주세요.')
+        throw new Error('유효하지 않은 JavaScript 형식입니다. 코드를 확인해주세요.')
       }
       throw error
     }

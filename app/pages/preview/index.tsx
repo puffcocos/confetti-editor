@@ -14,7 +14,7 @@ import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types
  * Confetti 미리보기 페이지
  */
 export function PreviewPage() {
-  const { fire, createShape, setConfettiCanvasRef } = useConfetti()
+  const { fire, fireFrame, createShape, setConfettiCanvasRef } = useConfetti()
   const [useCustomCanvas, setUseCustomCanvas] = useState(false)
 
   // 활성화된 프리셋 상태
@@ -97,6 +97,12 @@ export function PreviewPage() {
 
   // Popover 컨텐츠 영역의 최대 너비 (w-96 = 384px, p-4 = 32px 제외 = 352px)
   const maxCanvasWidth = 352
+
+  // Snow 효과 오버레이 상태
+  const [showSnowOverlay, setShowSnowOverlay] = useState(false)
+
+  // Frame cleanup 함수 저장용
+  const frameCleanupRef = useRef<(() => void) | null>(null)
 
   // Popover 위치 계산
   useEffect(() => {
@@ -199,9 +205,38 @@ export function PreviewPage() {
   const selectBuiltInPreset = (presetName: string) => {
     setActiveCustomPreset(null) // 커스텀 프리셋 비활성화
 
+    // 이전 프레임 cleanup 실행
+    if (frameCleanupRef.current) {
+      frameCleanupRef.current()
+      frameCleanupRef.current = null
+    }
+
     // 즉시 프리셋 실행
     const preset = confettiPresets[presetName as keyof typeof confettiPresets]
-    fire(preset)
+
+    // 타입 체크: duration 속성이 있으면 ConfettiFrame 타입
+    if ('duration' in preset) {
+      // ConfettiFrame 타입 - fireFrame 사용
+      const cleanup = fireFrame(preset)
+      frameCleanupRef.current = cleanup
+
+      setShowSnowOverlay(true)
+      // duration 후 오버레이 제거
+      setTimeout(() => {
+        setShowSnowOverlay(false)
+      }, preset.duration)
+    } else {
+      // 기존 배열 방식 - fire 사용
+      fire(preset)
+
+      // Snow 프리셋일 때 오버레이 활성화 (레거시 지원)
+      if (presetName === 'snow') {
+        setShowSnowOverlay(true)
+        setTimeout(() => {
+          setShowSnowOverlay(false)
+        }, 15000)
+      }
+    }
 
     // 클릭 시 짧은 활성화 효과 (보랏빛 표시)
     setActiveBuiltInPreset(presetName)
@@ -212,10 +247,38 @@ export function PreviewPage() {
 
   // 활성화된 프리셋 또는 커스텀 효과 실행
   const fireActivePreset = () => {
+    // 이전 프레임 cleanup 실행
+    if (frameCleanupRef.current) {
+      frameCleanupRef.current()
+      frameCleanupRef.current = null
+    }
+
     if (activeBuiltInPreset) {
       // 기본 프리셋 실행
       const preset = confettiPresets[activeBuiltInPreset as keyof typeof confettiPresets]
-      fire(preset)
+
+      // 타입 체크: duration 속성이 있으면 ConfettiFrame 타입
+      if ('duration' in preset) {
+        // ConfettiFrame 타입 - fireFrame 사용
+        const cleanup = fireFrame(preset)
+        frameCleanupRef.current = cleanup
+
+        setShowSnowOverlay(true)
+        setTimeout(() => {
+          setShowSnowOverlay(false)
+        }, preset.duration)
+      } else {
+        // 기존 배열 방식 - fire 사용
+        fire(preset)
+
+        // Snow 프리셋일 때 오버레이 활성화 (레거시 지원)
+        if (activeBuiltInPreset === 'snow') {
+          setShowSnowOverlay(true)
+          setTimeout(() => {
+            setShowSnowOverlay(false)
+          }, 15000)
+        }
+      }
     } else if (activeCustomPreset !== null) {
       // 커스텀 프리셋 실행
       const preset = customPresets[activeCustomPreset]
@@ -301,6 +364,13 @@ export function PreviewPage() {
   // 기본 프리셋 복사
   const copyPresetToCustom = (presetName: string) => {
     const preset = confettiPresets[presetName as keyof typeof confettiPresets]
+
+    // ConfettiFrame 타입은 복사 불가
+    if ('duration' in preset) {
+      alert(`"${presetName}" 프리셋은 프레임 기반이라 복사할 수 없습니다.`)
+      return
+    }
+
     setPresetOptions([...preset])
     setPresetName(`${presetName}_복사본`)
     alert(
@@ -592,7 +662,17 @@ export function PreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8 relative">
+      {/* Snow 효과용 어두운 오버레이 */}
+      {showSnowOverlay && (
+        <div
+          className="fixed inset-0 bg-black/30 pointer-events-none z-40"
+          style={{
+            animation: 'fadeIn 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        />
+      )}
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-4xl font-bold text-gray-800">Confetti 미리보기</h1>
@@ -661,16 +741,19 @@ export function PreviewPage() {
                   {/* 수정 모드 */}
                   {editingPresetIndex !== null && editingEffectIndex !== null && (
                     <span className="bg-yellow-400/90 px-2 py-0.5 rounded text-xs text-purple-900 font-medium">
-                      🔧 {customPresets[editingPresetIndex].name} 효과 {editingEffectIndex + 1} 수정 중
+                      🔧 {customPresets[editingPresetIndex].name} 효과 {editingEffectIndex + 1} 수정
+                      중
                     </span>
                   )}
 
                   {/* 일반 효과 테스트 (프리셋/수정 모드 아닐 때) */}
-                  {activeCustomPreset === null && activeBuiltInPreset === null && editingPresetIndex === null && (
-                    <span className="bg-white/20 px-2 py-0.5 rounded text-xs text-white">
-                      커스텀 효과
-                    </span>
-                  )}
+                  {activeCustomPreset === null &&
+                    activeBuiltInPreset === null &&
+                    editingPresetIndex === null && (
+                      <span className="bg-white/20 px-2 py-0.5 rounded text-xs text-white">
+                        커스텀 효과
+                      </span>
+                    )}
                 </div>
                 <button
                   onClick={() => {
@@ -682,7 +765,12 @@ export function PreviewPage() {
                   title="닫기"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -742,10 +830,7 @@ export function PreviewPage() {
                   }}
                   className="relative border border-purple-300 rounded bg-white overflow-hidden"
                 >
-                  <canvas
-                    ref={setConfettiCanvasRef}
-                    className="w-full h-full"
-                  />
+                  <canvas ref={setConfettiCanvasRef} className="w-full h-full" />
                 </div>
 
                 {/* 실행 버튼 */}
@@ -795,76 +880,76 @@ export function PreviewPage() {
           {/* 오른쪽: 커스텀 효과 설정 (sticky) */}
           <div className="sticky top-8">
             <SettingsPanel
-            particleCount={particleCount}
-            spread={spread}
-            startVelocity={startVelocity}
-            decay={decay}
-            gravity={gravity}
-            ticks={ticks}
-            originX={originX}
-            originY={originY}
-            angle={angle}
-            scalar={scalar}
-            drift={drift}
-            useCustomColors={useCustomColors}
-            customColors={customColors}
-            colorInput={colorInput}
-            shapes={shapes}
-            editingPresetIndex={editingPresetIndex}
-            editingEffectIndex={editingEffectIndex}
-            customPresets={customPresets}
-            currentOptions={currentOptions}
-            presetOptions={presetOptions}
-            copiedMain={copiedMain}
-            customColorPresets={customColorPresets}
-            colorPresetName={colorPresetName}
-            editingColorPresetIndex={editingColorPresetIndex}
-            activeColorPreset={activeColorPreset}
-            useCustomCanvas={useCustomCanvas}
-            onParticleCountChange={setParticleCount}
-            onSpreadChange={setSpread}
-            onStartVelocityChange={setStartVelocity}
-            onDecayChange={setDecay}
-            onGravityChange={setGravity}
-            onTicksChange={setTicks}
-            onOriginXChange={setOriginX}
-            onOriginYChange={setOriginY}
-            onAngleChange={setAngle}
-            onScalarChange={setScalar}
-            onDriftChange={setDrift}
-            onUseCustomColorsChange={setUseCustomColors}
-            onCustomColorsChange={setCustomColors}
-            onColorInputChange={setColorInput}
-            onShapesChange={setShapes}
-            onResetToDefaults={resetToDefaults}
-            onUpdateEffectInPreset={updateEffectInPreset}
-            onCancelEditMode={cancelEditMode}
-            onFireCustom={fireCustom}
-            onCopyToClipboard={copyToClipboard}
-            onColorPresetNameChange={setColorPresetName}
-            onSaveCustomColorPreset={saveCustomColorPreset}
-            onApplyCustomColorPreset={applyCustomColorPreset}
-            onDeleteCustomColorPreset={deleteCustomColorPreset}
-            onStartEditingColorPreset={startEditingColorPreset}
-            onUpdateCustomColorPreset={updateCustomColorPreset}
-            onCancelEditingColorPreset={cancelEditingColorPreset}
-            useCustomShapes={useCustomShapes}
-            customShapePath={customShapePath}
-            customShapePresets={customShapePresets}
-            selectedCustomShapes={selectedCustomShapes}
-            shapePresetName={shapePresetName}
-            editingShapePresetIndex={editingShapePresetIndex}
-            onUseCustomShapesChange={setUseCustomShapes}
-            onCustomShapePathChange={setCustomShapePath}
-            onShapePresetNameChange={setShapePresetName}
-            onAddCustomShapePreset={addCustomShapePreset}
-            onLoadExampleShape={loadExampleShape}
-            onToggleCustomShape={toggleCustomShape}
-            onDeleteCustomShapePreset={deleteCustomShapePreset}
-            onStartEditingShapePreset={startEditingShapePreset}
-            onUpdateCustomShapePreset={updateCustomShapePreset}
-            onCancelEditingShapePreset={cancelEditingShapePreset}
-          />
+              particleCount={particleCount}
+              spread={spread}
+              startVelocity={startVelocity}
+              decay={decay}
+              gravity={gravity}
+              ticks={ticks}
+              originX={originX}
+              originY={originY}
+              angle={angle}
+              scalar={scalar}
+              drift={drift}
+              useCustomColors={useCustomColors}
+              customColors={customColors}
+              colorInput={colorInput}
+              shapes={shapes}
+              editingPresetIndex={editingPresetIndex}
+              editingEffectIndex={editingEffectIndex}
+              customPresets={customPresets}
+              currentOptions={currentOptions}
+              presetOptions={presetOptions}
+              copiedMain={copiedMain}
+              customColorPresets={customColorPresets}
+              colorPresetName={colorPresetName}
+              editingColorPresetIndex={editingColorPresetIndex}
+              activeColorPreset={activeColorPreset}
+              useCustomCanvas={useCustomCanvas}
+              onParticleCountChange={setParticleCount}
+              onSpreadChange={setSpread}
+              onStartVelocityChange={setStartVelocity}
+              onDecayChange={setDecay}
+              onGravityChange={setGravity}
+              onTicksChange={setTicks}
+              onOriginXChange={setOriginX}
+              onOriginYChange={setOriginY}
+              onAngleChange={setAngle}
+              onScalarChange={setScalar}
+              onDriftChange={setDrift}
+              onUseCustomColorsChange={setUseCustomColors}
+              onCustomColorsChange={setCustomColors}
+              onColorInputChange={setColorInput}
+              onShapesChange={setShapes}
+              onResetToDefaults={resetToDefaults}
+              onUpdateEffectInPreset={updateEffectInPreset}
+              onCancelEditMode={cancelEditMode}
+              onFireCustom={fireCustom}
+              onCopyToClipboard={copyToClipboard}
+              onColorPresetNameChange={setColorPresetName}
+              onSaveCustomColorPreset={saveCustomColorPreset}
+              onApplyCustomColorPreset={applyCustomColorPreset}
+              onDeleteCustomColorPreset={deleteCustomColorPreset}
+              onStartEditingColorPreset={startEditingColorPreset}
+              onUpdateCustomColorPreset={updateCustomColorPreset}
+              onCancelEditingColorPreset={cancelEditingColorPreset}
+              useCustomShapes={useCustomShapes}
+              customShapePath={customShapePath}
+              customShapePresets={customShapePresets}
+              selectedCustomShapes={selectedCustomShapes}
+              shapePresetName={shapePresetName}
+              editingShapePresetIndex={editingShapePresetIndex}
+              onUseCustomShapesChange={setUseCustomShapes}
+              onCustomShapePathChange={setCustomShapePath}
+              onShapePresetNameChange={setShapePresetName}
+              onAddCustomShapePreset={addCustomShapePreset}
+              onLoadExampleShape={loadExampleShape}
+              onToggleCustomShape={toggleCustomShape}
+              onDeleteCustomShapePreset={deleteCustomShapePreset}
+              onStartEditingShapePreset={startEditingShapePreset}
+              onUpdateCustomShapePreset={updateCustomShapePreset}
+              onCancelEditingShapePreset={cancelEditingShapePreset}
+            />
           </div>
         </div>
 

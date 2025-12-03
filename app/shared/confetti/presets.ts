@@ -1,4 +1,5 @@
 import type { Options as ConfettiOptions } from 'canvas-confetti'
+import type { ConfettiFrame } from './types'
 
 /**
  * 미리 정의된 confetti 프리셋
@@ -72,19 +73,27 @@ export const confettiPresets = {
   ] as ConfettiOptions[],
 
   /**
-   * 눈 효과
+   * 눈 효과 (지속적으로 눈 내림)
+   * fireFrame을 사용하여 매 프레임마다 작은 눈송이를 발사합니다.
    */
-  snow: [
-    {
-      particleCount: 200,
-      spread: 180,
-      origin: { y: -0.1 },
-      startVelocity: 0,
-      ticks: 300,
-      gravity: 0.5,
-      colors: ['#ffffff'],
+  snow: {
+    duration: 12000,
+    execute: (fire) => {
+      // 매 프레임마다 작은 눈송이를 발사
+      fire({
+        particleCount: 3, // 한 번에 3개 발사 (60fps * 3 = 180개/초)
+        spread: 180,
+        origin: { x: Math.random(), y: -0.1 },
+        startVelocity: 0,
+        ticks: 900, // 15초 동안 화면에 유지 (60fps * 15초)
+        gravity: 0.5, // 중력 더 감소로 매우 천천히 떨어지도록
+        decay: 0.99, // 감속 최소화로 투명도 유지
+        scalar: 0.4 + Math.random() * 0.3, // 0.4 ~ 0.7 랜덤 크기
+        drift: Math.random() * 1 - 0.5, // -0.5 ~ 0.5 랜덤 drift
+        colors: ['#ffffff', '#e0f7ff', '#f0f8ff'],
+      })
     },
-  ] as ConfettiOptions[],
+  } satisfies ConfettiFrame,
 
   /**
    * 불꽃놀이 효과

@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react'
 import confetti from 'canvas-confetti'
 import type { Options as ConfettiOptions, Shape, CreateTypes } from 'canvas-confetti'
+import type { ConfettiFrame } from './types'
 
 interface ShapeFromPathOptions {
   path: string
@@ -83,5 +84,63 @@ export function useConfetti() {
     return confetti.shapeFromPath({ path: options.path })
   }, [])
 
-  return { fire, createShape, setConfettiCanvasRef }
+  /**
+   * 프레임 기반으로 confetti를 실행합니다.
+   * requestAnimationFrame을 사용하여 지정된 시간 동안 execute 함수를 반복 실행합니다.
+   *
+   * @param frame - 실행할 프레임 정의 (execute 함수와 duration)
+   * @returns cleanup 함수 - 프레임 실행을 중단하고 싶을 때 호출
+   *
+   * @example
+   * ```tsx
+   * const cleanup = fireFrame({
+   *   execute: (fire) => {
+   *     fire({ particleCount: 10, spread: 180, origin: { y: -0.1 } })
+   *   },
+   *   duration: 5000 // 5초 동안 실행
+   * })
+   *
+   * // 필요시 조기 종료
+   * cleanup()
+   * ```
+   */
+  const fireFrame = useCallback(
+    (frame: ConfettiFrame) => {
+      // 커스텀 canvas가 설정되어 있으면 해당 canvas 사용, 아니면 기본 confetti 사용
+      const confettiFn = customConfettiRef.current || confetti
+
+      const startTime = performance.now()
+      let animationId: number | null = null
+
+      const animate = (currentTime: number) => {
+        const elapsed = currentTime - startTime
+
+        // 지속 시간이 초과되면 종료
+        if (elapsed >= frame.duration) {
+          animationId = null
+          return
+        }
+
+        // 프레임의 execute 함수 실행
+        frame.execute(confettiFn)
+
+        // 다음 프레임 요청
+        animationId = requestAnimationFrame(animate)
+      }
+
+      // 애니메이션 시작
+      animationId = requestAnimationFrame(animate)
+
+      // cleanup 함수 반환
+      return () => {
+        if (animationId !== null) {
+          cancelAnimationFrame(animationId)
+          animationId = null
+        }
+      }
+    },
+    []
+  )
+
+  return { fire, fireFrame, createShape, setConfettiCanvasRef }
 }

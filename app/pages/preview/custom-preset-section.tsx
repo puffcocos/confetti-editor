@@ -192,12 +192,13 @@ export function CustomPresetSection({
                 <div className="flex items-center gap-2 p-3">
                   <button
                     onClick={() => onSelectCustomPreset(index)}
-                    className={`flex-1 text-left px-3 py-2 rounded font-medium text-sm transition-all ${
+                    className={`flex-1 text-left px-3 py-2 rounded font-medium text-sm transition-all cursor-pointer ${
                       isActive
                         ? 'bg-purple-50 text-purple-700 shadow-md animate-spin-border'
                         : 'bg-purple-100 text-purple-800 hover:bg-purple-200'
                     }`}
                   >
+                    {isActive && '✓ '}
                     {preset.name}{' '}
                     <span className={isActive ? 'text-purple-600' : 'text-purple-600'}>
                       ({preset.options.length}개 효과)

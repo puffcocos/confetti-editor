@@ -396,11 +396,18 @@ export function PreviewPage() {
     alert(`"${colorPresetName}" 색상 프리셋이 저장되었습니다! (${customColors.length}개 색상)`)
   }
 
-  // 커스텀 색상 프리셋 적용
+  // 커스텀 색상 프리셋 적용 (토글)
   const applyCustomColorPreset = (preset: CustomColorPreset, index: number) => {
-    setCustomColors(preset.colors)
-    setUseCustomColors(true)
-    setActiveColorPreset(index)
+    // 같은 프리셋을 다시 클릭하면 선택 해제
+    if (activeColorPreset === index) {
+      setActiveColorPreset(null)
+      setCustomColors([]) // 색상 초기화
+      setUseCustomColors(false) // 커스텀 색상 비활성화
+    } else {
+      setCustomColors(preset.colors)
+      setUseCustomColors(true)
+      setActiveColorPreset(index)
+    }
   }
 
   // 커스텀 색상 프리셋 삭제

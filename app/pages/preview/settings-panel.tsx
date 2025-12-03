@@ -405,14 +405,15 @@ export function SettingsPanel(props: SettingsPanelProps) {
                                 }
                               }}
                               disabled={isEditing}
-                              className={`flex-1 text-left px-3 py-2 rounded font-medium text-sm transition-all ${
+                              className={`flex-1 text-left px-3 py-2 rounded font-medium text-sm transition-all cursor-pointer ${
                                 isActive
                                   ? 'bg-purple-50 text-purple-700 shadow-md animate-spin-border'
                                   : isEditing
-                                  ? 'bg-yellow-50 text-yellow-800'
+                                  ? 'bg-yellow-50 text-yellow-800 cursor-not-allowed'
                                   : 'bg-purple-100 text-purple-800 hover:bg-purple-200'
                               }`}
                             >
+                              {isActive && '✓ '}
                               {preset.name}{' '}
                               <span
                                 className={

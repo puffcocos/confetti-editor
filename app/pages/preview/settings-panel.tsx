@@ -20,6 +20,14 @@ interface SettingsPanelProps {
   scalar: number
   drift: number
   flat: boolean
+  tiltRangeMin: number
+  tiltRangeMax: number
+  tiltSpeedMin: number
+  tiltSpeedMax: number
+  wobbleRangeMin: number
+  wobbleRangeMax: number
+  wobbleSpeedMin: number
+  wobbleSpeedMax: number
   useCustomColors: boolean
   customColors: string[]
   colorInput: string
@@ -52,6 +60,10 @@ interface SettingsPanelProps {
   // Canvas 바운더리 상태
   useCustomCanvas: boolean
 
+  // 실험적 기능 사용 여부
+  useExperimentalFeatures: boolean
+  onUseExperimentalFeaturesChange: (value: boolean) => void
+
   // 상태 업데이트 함수
   onParticleCountChange: (value: number) => void
   onSpreadChange: (value: number) => void
@@ -65,6 +77,14 @@ interface SettingsPanelProps {
   onScalarChange: (value: number) => void
   onDriftChange: (value: number) => void
   onFlatChange: (value: boolean) => void
+  onTiltRangeMinChange: (value: number) => void
+  onTiltRangeMaxChange: (value: number) => void
+  onTiltSpeedMinChange: (value: number) => void
+  onTiltSpeedMaxChange: (value: number) => void
+  onWobbleRangeMinChange: (value: number) => void
+  onWobbleRangeMaxChange: (value: number) => void
+  onWobbleSpeedMinChange: (value: number) => void
+  onWobbleSpeedMaxChange: (value: number) => void
   onUseCustomColorsChange: (value: boolean) => void
   onCustomColorsChange: (colors: string[]) => void
   onColorInputChange: (value: string) => void
@@ -116,6 +136,14 @@ export function SettingsPanel(props: SettingsPanelProps) {
     scalar,
     drift,
     flat,
+    tiltRangeMin,
+    tiltRangeMax,
+    tiltSpeedMin,
+    tiltSpeedMax,
+    wobbleRangeMin,
+    wobbleRangeMax,
+    wobbleSpeedMin,
+    wobbleSpeedMax,
     useCustomColors,
     customColors,
     colorInput,
@@ -137,6 +165,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
     shapePresetName,
     editingShapePresetIndex,
     useCustomCanvas,
+    useExperimentalFeatures,
     onParticleCountChange,
     onSpreadChange,
     onStartVelocityChange,
@@ -149,6 +178,14 @@ export function SettingsPanel(props: SettingsPanelProps) {
     onScalarChange,
     onDriftChange,
     onFlatChange,
+    onTiltRangeMinChange,
+    onTiltRangeMaxChange,
+    onTiltSpeedMinChange,
+    onTiltSpeedMaxChange,
+    onWobbleRangeMinChange,
+    onWobbleRangeMaxChange,
+    onWobbleSpeedMinChange,
+    onWobbleSpeedMaxChange,
     onUseCustomColorsChange,
     onCustomColorsChange,
     onColorInputChange,
@@ -175,6 +212,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
     onStartEditingShapePreset,
     onUpdateCustomShapePreset,
     onCancelEditingShapePreset,
+    onUseExperimentalFeaturesChange,
   } = props
 
   const addColor = () => {
@@ -386,7 +424,140 @@ export function SettingsPanel(props: SettingsPanelProps) {
             </button>
           </div>
         </div>
+      </div>
 
+      {/* 실험적 기능 섹션 */}
+      <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🧪</span>
+            <h3 className="text-sm font-semibold text-amber-800">실험적 기능</h3>
+            <span className="text-xs bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full font-medium">
+              EXPERIMENTAL
+            </span>
+          </div>
+          <button
+            onClick={() => onUseExperimentalFeaturesChange(!useExperimentalFeatures)}
+            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+              useExperimentalFeatures
+                ? 'bg-amber-600 text-white hover:bg-amber-700'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            {useExperimentalFeatures ? 'ON' : 'OFF'}
+          </button>
+        </div>
+
+        {useExperimentalFeatures && (
+          <>
+            <p className="text-xs text-amber-700 mb-4">
+              다음 옵션들은 실험적 기능입니다. 일부 브라우저에서 예상과 다르게 동작할 수 있습니다.
+            </p>
+
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+          {/* Tilt Range Min */}
+          <OptionSlider
+            label={OPTION_INFO.tiltRangeMin.label}
+            value={tiltRangeMin}
+            defaultValue={DEFAULT_VALUES.tiltRangeMin}
+            description={OPTION_INFO.tiltRangeMin.description}
+            min={OPTION_INFO.tiltRangeMin.min}
+            max={OPTION_INFO.tiltRangeMin.max}
+            onChange={onTiltRangeMinChange}
+            unit="°"
+          />
+
+          {/* Tilt Range Max */}
+          <OptionSlider
+            label={OPTION_INFO.tiltRangeMax.label}
+            value={tiltRangeMax}
+            defaultValue={DEFAULT_VALUES.tiltRangeMax}
+            description={OPTION_INFO.tiltRangeMax.description}
+            min={OPTION_INFO.tiltRangeMax.min}
+            max={OPTION_INFO.tiltRangeMax.max}
+            onChange={onTiltRangeMaxChange}
+            unit="°"
+          />
+
+          {/* Tilt Speed Min */}
+          <OptionSlider
+            label={OPTION_INFO.tiltSpeedMin.label}
+            value={tiltSpeedMin}
+            defaultValue={DEFAULT_VALUES.tiltSpeedMin}
+            description={OPTION_INFO.tiltSpeedMin.description}
+            min={OPTION_INFO.tiltSpeedMin.min}
+            max={OPTION_INFO.tiltSpeedMin.max}
+            step={OPTION_INFO.tiltSpeedMin.step}
+            onChange={onTiltSpeedMinChange}
+            decimal={2}
+          />
+
+          {/* Tilt Speed Max */}
+          <OptionSlider
+            label={OPTION_INFO.tiltSpeedMax.label}
+            value={tiltSpeedMax}
+            defaultValue={DEFAULT_VALUES.tiltSpeedMax}
+            description={OPTION_INFO.tiltSpeedMax.description}
+            min={OPTION_INFO.tiltSpeedMax.min}
+            max={OPTION_INFO.tiltSpeedMax.max}
+            step={OPTION_INFO.tiltSpeedMax.step}
+            onChange={onTiltSpeedMaxChange}
+            decimal={2}
+          />
+
+          {/* Wobble Range Min */}
+          <OptionSlider
+            label={OPTION_INFO.wobbleRangeMin.label}
+            value={wobbleRangeMin}
+            defaultValue={DEFAULT_VALUES.wobbleRangeMin}
+            description={OPTION_INFO.wobbleRangeMin.description}
+            min={OPTION_INFO.wobbleRangeMin.min}
+            max={OPTION_INFO.wobbleRangeMin.max}
+            onChange={onWobbleRangeMinChange}
+          />
+
+          {/* Wobble Range Max */}
+          <OptionSlider
+            label={OPTION_INFO.wobbleRangeMax.label}
+            value={wobbleRangeMax}
+            defaultValue={DEFAULT_VALUES.wobbleRangeMax}
+            description={OPTION_INFO.wobbleRangeMax.description}
+            min={OPTION_INFO.wobbleRangeMax.min}
+            max={OPTION_INFO.wobbleRangeMax.max}
+            onChange={onWobbleRangeMaxChange}
+          />
+
+          {/* Wobble Speed Min */}
+          <OptionSlider
+            label={OPTION_INFO.wobbleSpeedMin.label}
+            value={wobbleSpeedMin}
+            defaultValue={DEFAULT_VALUES.wobbleSpeedMin}
+            description={OPTION_INFO.wobbleSpeedMin.description}
+            min={OPTION_INFO.wobbleSpeedMin.min}
+            max={OPTION_INFO.wobbleSpeedMin.max}
+            step={OPTION_INFO.wobbleSpeedMin.step}
+            onChange={onWobbleSpeedMinChange}
+            decimal={2}
+          />
+
+          {/* Wobble Speed Max */}
+          <OptionSlider
+            label={OPTION_INFO.wobbleSpeedMax.label}
+            value={wobbleSpeedMax}
+            defaultValue={DEFAULT_VALUES.wobbleSpeedMax}
+            description={OPTION_INFO.wobbleSpeedMax.description}
+            min={OPTION_INFO.wobbleSpeedMax.min}
+            max={OPTION_INFO.wobbleSpeedMax.max}
+            step={OPTION_INFO.wobbleSpeedMax.step}
+            onChange={onWobbleSpeedMaxChange}
+            decimal={2}
+          />
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-6">
         {/* 색상 옵션 */}
         <div className="col-span-2 pt-4 border-t border-gray-200">
           <div className="flex items-center justify-between mb-3">

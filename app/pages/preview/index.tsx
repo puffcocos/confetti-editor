@@ -43,6 +43,16 @@ export function PreviewPage() {
   const [drift, setDrift] = useState<number>(DEFAULT_VALUES.drift)
   const [flat, setFlat] = useState<boolean>(DEFAULT_VALUES.flat)
 
+  // 실험적 옵션 (tilt/wobble)
+  const [tiltRangeMin, setTiltRangeMin] = useState<number>(DEFAULT_VALUES.tiltRangeMin)
+  const [tiltRangeMax, setTiltRangeMax] = useState<number>(DEFAULT_VALUES.tiltRangeMax)
+  const [tiltSpeedMin, setTiltSpeedMin] = useState<number>(DEFAULT_VALUES.tiltSpeedMin)
+  const [tiltSpeedMax, setTiltSpeedMax] = useState<number>(DEFAULT_VALUES.tiltSpeedMax)
+  const [wobbleRangeMin, setWobbleRangeMin] = useState<number>(DEFAULT_VALUES.wobbleRangeMin)
+  const [wobbleRangeMax, setWobbleRangeMax] = useState<number>(DEFAULT_VALUES.wobbleRangeMax)
+  const [wobbleSpeedMin, setWobbleSpeedMin] = useState<number>(DEFAULT_VALUES.wobbleSpeedMin)
+  const [wobbleSpeedMax, setWobbleSpeedMax] = useState<number>(DEFAULT_VALUES.wobbleSpeedMax)
+
   // 색상 옵션
   const [useCustomColors, setUseCustomColors] = useState(false)
   const [customColors, setCustomColors] = useState<string[]>([])
@@ -88,6 +98,9 @@ export function PreviewPage() {
   const [selectedCustomShapes, setSelectedCustomShapes] = useState<CustomShapePreset[]>([])
   const [shapePresetName, setShapePresetName] = useState('')
   const [editingShapePresetIndex, setEditingShapePresetIndex] = useState<number | null>(null)
+
+  // 실험적 기능 사용 여부
+  const [useExperimentalFeatures, setUseExperimentalFeatures] = useState(false)
 
   // Canvas 미리보기 토글 상태
   const [isCanvasPreviewOpen, setIsCanvasPreviewOpen] = useState(false)
@@ -142,6 +155,16 @@ export function PreviewPage() {
     scalar,
     drift,
     flat,
+    // 실험적 기능이 활성화되어 있을 때만 포함
+    ...(useExperimentalFeatures
+      ? {
+          // tiltRange: degrees to radians
+          tiltRange: [(tiltRangeMin * Math.PI) / 180, (tiltRangeMax * Math.PI) / 180],
+          tiltSpeed: [tiltSpeedMin, tiltSpeedMax],
+          wobbleRange: [wobbleRangeMin, wobbleRangeMax],
+          wobbleSpeed: [wobbleSpeedMin, wobbleSpeedMax],
+        }
+      : {}),
     ...(useCustomColors && customColors.length > 0 ? { colors: customColors } : {}),
     ...(() => {
       // 커스텀 파티클과 기본 도형 결합
@@ -196,12 +219,21 @@ export function PreviewPage() {
     setScalar(DEFAULT_VALUES.scalar)
     setDrift(DEFAULT_VALUES.drift)
     setFlat(DEFAULT_VALUES.flat)
+    setTiltRangeMin(DEFAULT_VALUES.tiltRangeMin)
+    setTiltRangeMax(DEFAULT_VALUES.tiltRangeMax)
+    setTiltSpeedMin(DEFAULT_VALUES.tiltSpeedMin)
+    setTiltSpeedMax(DEFAULT_VALUES.tiltSpeedMax)
+    setWobbleRangeMin(DEFAULT_VALUES.wobbleRangeMin)
+    setWobbleRangeMax(DEFAULT_VALUES.wobbleRangeMax)
+    setWobbleSpeedMin(DEFAULT_VALUES.wobbleSpeedMin)
+    setWobbleSpeedMax(DEFAULT_VALUES.wobbleSpeedMax)
     setUseCustomColors(false)
     setCustomColors(['#ff0000', '#00ff00', '#0000ff'])
     setShapes(['square', 'circle'])
     setUseCustomShapes(false)
     setCustomShapePath('')
     setSelectedCustomShapes([])
+    setUseExperimentalFeatures(false)
   }
 
   // 기본 프리셋 선택 및 즉시 실행
@@ -414,6 +446,28 @@ export function PreviewPage() {
     setScalar(effect.scalar ?? DEFAULT_VALUES.scalar)
     setDrift(effect.drift ?? DEFAULT_VALUES.drift)
     setFlat(effect.flat ?? DEFAULT_VALUES.flat)
+
+    // tiltRange: radians to degrees
+    const tiltRangeMinRadians = effect.tiltRange?.[0] ?? (DEFAULT_VALUES.tiltRangeMin * Math.PI) / 180
+    const tiltRangeMaxRadians = effect.tiltRange?.[1] ?? (DEFAULT_VALUES.tiltRangeMax * Math.PI) / 180
+    setTiltRangeMin((tiltRangeMinRadians * 180) / Math.PI)
+    setTiltRangeMax((tiltRangeMaxRadians * 180) / Math.PI)
+
+    setTiltSpeedMin(effect.tiltSpeed?.[0] ?? DEFAULT_VALUES.tiltSpeedMin)
+    setTiltSpeedMax(effect.tiltSpeed?.[1] ?? DEFAULT_VALUES.tiltSpeedMax)
+    setWobbleRangeMin(effect.wobbleRange?.[0] ?? DEFAULT_VALUES.wobbleRangeMin)
+    setWobbleRangeMax(effect.wobbleRange?.[1] ?? DEFAULT_VALUES.wobbleRangeMax)
+    setWobbleSpeedMin(effect.wobbleSpeed?.[0] ?? DEFAULT_VALUES.wobbleSpeedMin)
+    setWobbleSpeedMax(effect.wobbleSpeed?.[1] ?? DEFAULT_VALUES.wobbleSpeedMax)
+
+    // 실험적 옵션 사용 여부 자동 감지
+    const hasExperimentalOptions =
+      effect.tiltRange !== undefined ||
+      effect.tiltSpeed !== undefined ||
+      effect.wobbleRange !== undefined ||
+      effect.wobbleSpeed !== undefined
+
+    setUseExperimentalFeatures(hasExperimentalOptions)
 
     if (effect.colors && effect.colors.length > 0) {
       setCustomColors(effect.colors)
@@ -899,6 +953,14 @@ export function PreviewPage() {
               scalar={scalar}
               drift={drift}
               flat={flat}
+              tiltRangeMin={tiltRangeMin}
+              tiltRangeMax={tiltRangeMax}
+              tiltSpeedMin={tiltSpeedMin}
+              tiltSpeedMax={tiltSpeedMax}
+              wobbleRangeMin={wobbleRangeMin}
+              wobbleRangeMax={wobbleRangeMax}
+              wobbleSpeedMin={wobbleSpeedMin}
+              wobbleSpeedMax={wobbleSpeedMax}
               useCustomColors={useCustomColors}
               customColors={customColors}
               colorInput={colorInput}
@@ -914,6 +976,7 @@ export function PreviewPage() {
               editingColorPresetIndex={editingColorPresetIndex}
               activeColorPreset={activeColorPreset}
               useCustomCanvas={useCustomCanvas}
+              useExperimentalFeatures={useExperimentalFeatures}
               onParticleCountChange={setParticleCount}
               onSpreadChange={setSpread}
               onStartVelocityChange={setStartVelocity}
@@ -926,6 +989,14 @@ export function PreviewPage() {
               onScalarChange={setScalar}
               onDriftChange={setDrift}
               onFlatChange={setFlat}
+              onTiltRangeMinChange={setTiltRangeMin}
+              onTiltRangeMaxChange={setTiltRangeMax}
+              onTiltSpeedMinChange={setTiltSpeedMin}
+              onTiltSpeedMaxChange={setTiltSpeedMax}
+              onWobbleRangeMinChange={setWobbleRangeMin}
+              onWobbleRangeMaxChange={setWobbleRangeMax}
+              onWobbleSpeedMinChange={setWobbleSpeedMin}
+              onWobbleSpeedMaxChange={setWobbleSpeedMax}
               onUseCustomColorsChange={setUseCustomColors}
               onCustomColorsChange={setCustomColors}
               onColorInputChange={setColorInput}
@@ -958,6 +1029,7 @@ export function PreviewPage() {
               onStartEditingShapePreset={startEditingShapePreset}
               onUpdateCustomShapePreset={updateCustomShapePreset}
               onCancelEditingShapePreset={cancelEditingShapePreset}
+              onUseExperimentalFeaturesChange={setUseExperimentalFeatures}
             />
           </div>
         </div>

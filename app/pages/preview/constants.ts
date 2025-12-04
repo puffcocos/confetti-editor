@@ -15,6 +15,14 @@ export const DEFAULT_VALUES = {
   scalar: 1,
   drift: 0,
   flat: false,
+  tiltRangeMin: -90, // degrees (converted to -Math.PI/2 radians)
+  tiltRangeMax: 90, // degrees (converted to Math.PI/2 radians)
+  tiltSpeedMin: 0.05,
+  tiltSpeedMax: 0.4,
+  wobbleRangeMin: 5,
+  wobbleRangeMax: 10,
+  wobbleSpeedMin: 0.05,
+  wobbleSpeedMax: 0.11,
 } as const
 
 /**
@@ -97,6 +105,58 @@ export const OPTION_INFO = {
     label: '2D 파티클',
     description: '파티클을 입체감 없이 평면으로 표시',
     type: 'boolean',
+  },
+  tiltRangeMin: {
+    label: '기울기 최소값',
+    description: '파티클의 최소 기울기 각도 (도 단위, 라디안으로 자동 변환됨)',
+    min: -180,
+    max: 180,
+  },
+  tiltRangeMax: {
+    label: '기울기 최대값',
+    description: '파티클의 최대 기울기 각도 (도 단위, 라디안으로 자동 변환됨)',
+    min: -180,
+    max: 180,
+  },
+  tiltSpeedMin: {
+    label: '기울기 속도 최소값',
+    description: '파티클이 기울어지는 최소 속도 (라디안/프레임)',
+    min: 0,
+    max: 1,
+    step: 0.01,
+  },
+  tiltSpeedMax: {
+    label: '기울기 속도 최대값',
+    description: '파티클이 기울어지는 최대 속도 (라디안/프레임)',
+    min: 0,
+    max: 1,
+    step: 0.01,
+  },
+  wobbleRangeMin: {
+    label: '흔들림 최소값',
+    description: '파티클의 최소 흔들림 반경 (단위 없음)',
+    min: 0,
+    max: 50,
+  },
+  wobbleRangeMax: {
+    label: '흔들림 최대값',
+    description: '파티클의 최대 흔들림 반경 (단위 없음)',
+    min: 0,
+    max: 50,
+  },
+  wobbleSpeedMin: {
+    label: '흔들림 속도 최소값',
+    description: '파티클이 흔들리는 최소 속도 (프레임당)',
+    min: 0,
+    max: 0.5,
+    step: 0.01,
+  },
+  wobbleSpeedMax: {
+    label: '흔들림 속도 최대값',
+    description: '파티클이 흔들리는 최대 속도 (프레임당)',
+    min: 0,
+    max: 0.5,
+    step: 0.01,
   },
 } as const
 

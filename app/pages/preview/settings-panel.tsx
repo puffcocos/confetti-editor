@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Options as ConfettiOptions } from 'canvas-confetti'
+import type { ConfettiOptions } from '~/shared/confetti/types'
 import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types'
 import { DEFAULT_VALUES, OPTION_INFO } from './constants'
 import { EXAMPLE_SHAPE_PRESETS } from './shape-presets'

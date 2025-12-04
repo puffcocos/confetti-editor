@@ -1,4 +1,4 @@
-import type { Options as ConfettiOptions } from 'canvas-confetti'
+import type { ConfettiOptions } from '~/shared/confetti/types'
 
 /**
  * 커스텀 프리셋 타입

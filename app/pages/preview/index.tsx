@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import type { Options as ConfettiOptions } from 'canvas-confetti'
+import type { ConfettiOptions } from '~/shared/confetti/types'
 import { confettiPresets } from '~/shared/confetti/presets'
 import { useConfetti } from '~/shared/confetti/use-confetti'
 import { useLocalStorage } from '~/hooks/use-local-storage'

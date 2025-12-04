@@ -105,10 +105,8 @@ canvas-confetti의 모든 옵션을 지원합니다. 주요 옵션:
 ### 전체 타입 정의
 
 ```typescript
+// 권장: shared/confetti/types를 통해 import
 import type { ConfettiOptions } from '~/shared/confetti/types'
-
-// 또는 직접 import
-import type { Options as ConfettiOptions } from 'canvas-confetti'
 ```
 
 ---

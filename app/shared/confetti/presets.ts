@@ -1,5 +1,4 @@
-import type { Options as ConfettiOptions } from 'canvas-confetti'
-import type { ConfettiFrame } from './types'
+import type { ConfettiOptions, ConfettiFrame } from './types'
 
 /**
  * 미리 정의된 confetti 프리셋

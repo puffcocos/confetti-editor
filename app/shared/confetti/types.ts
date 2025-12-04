@@ -27,7 +27,7 @@ export type {
 
 // 로컬 타입 import
 import type { Options as ConfettiOptions, CreateTypes } from 'canvas-confetti'
-import confetti from 'canvas-confetti'
+import confetti from '../lib/canvas-confetti/confetti'
 
 /**
  * Confetti Frame 타입

@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
-import confetti from 'canvas-confetti'
-import type { Options as ConfettiOptions, Shape, CreateTypes } from 'canvas-confetti'
-import type { ConfettiFrame } from './types'
+// import confetti from 'canvas-confetti'
+import confetti from '../lib/canvas-confetti/confetti'
+import type { ConfettiOptions, Shape, CreateTypes, ConfettiFrame } from './types'
 
 interface ShapeFromPathOptions {
   path: string
@@ -104,43 +104,40 @@ export function useConfetti() {
    * cleanup()
    * ```
    */
-  const fireFrame = useCallback(
-    (frame: ConfettiFrame) => {
-      // 커스텀 canvas가 설정되어 있으면 해당 canvas 사용, 아니면 기본 confetti 사용
-      const confettiFn = customConfettiRef.current || confetti
+  const fireFrame = useCallback((frame: ConfettiFrame) => {
+    // 커스텀 canvas가 설정되어 있으면 해당 canvas 사용, 아니면 기본 confetti 사용
+    const confettiFn = customConfettiRef.current || confetti
 
-      const startTime = performance.now()
-      let animationId: number | null = null
+    const startTime = performance.now()
+    let animationId: number | null = null
 
-      const animate = (currentTime: number) => {
-        const elapsed = currentTime - startTime
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime
 
-        // 지속 시간이 초과되면 종료
-        if (elapsed >= frame.duration) {
-          animationId = null
-          return
-        }
-
-        // 프레임의 execute 함수 실행
-        frame.execute(confettiFn)
-
-        // 다음 프레임 요청
-        animationId = requestAnimationFrame(animate)
+      // 지속 시간이 초과되면 종료
+      if (elapsed >= frame.duration) {
+        animationId = null
+        return
       }
 
-      // 애니메이션 시작
+      // 프레임의 execute 함수 실행
+      frame.execute(confettiFn)
+
+      // 다음 프레임 요청
       animationId = requestAnimationFrame(animate)
+    }
 
-      // cleanup 함수 반환
-      return () => {
-        if (animationId !== null) {
-          cancelAnimationFrame(animationId)
-          animationId = null
-        }
+    // 애니메이션 시작
+    animationId = requestAnimationFrame(animate)
+
+    // cleanup 함수 반환
+    return () => {
+      if (animationId !== null) {
+        cancelAnimationFrame(animationId)
+        animationId = null
       }
-    },
-    []
-  )
+    }
+  }, [])
 
   return { fire, fireFrame, createShape, setConfettiCanvasRef }
 }

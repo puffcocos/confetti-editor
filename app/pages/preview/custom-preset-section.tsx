@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Options as ConfettiOptions } from 'canvas-confetti'
+import type { ConfettiOptions } from '~/shared/confetti/types'
 import type { CustomPreset } from './types'
 
 interface CustomPresetSectionProps {

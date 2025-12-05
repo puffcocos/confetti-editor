@@ -244,7 +244,7 @@ var module = {}
     // probably should be true, but back-compat
     disableForReducedMotion: false,
     /* New feature 3-D wobble/tilt control  */
-    tiltRange: [-Math.PI * 0.5, Math.PI * 0.5], // [min,max] radians
+    tiltRange: [Math.PI * 0.25, Math.PI * 0.75], // [min,max] radians
     tiltSpeed: [0.05, 0.4], // radians per frame
     wobbleRange: [0, 10], // “radius” units
     wobbleSpeed: [0.05, 0.11], // per-frame

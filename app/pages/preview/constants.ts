@@ -1,4 +1,3 @@
-
 /**
  * 기본값 상수 정의
  */
@@ -15,8 +14,8 @@ export const DEFAULT_VALUES = {
   scalar: 1,
   drift: 0,
   flat: false,
-  tiltRangeMin: -90, // degrees (converted to -Math.PI/2 radians)
-  tiltRangeMax: 90, // degrees (converted to Math.PI/2 radians)
+  tiltRangeMin: 45, // degrees (converted to 0.25 * Math.PI radians)
+  tiltRangeMax: 135, // degrees (converted to 0.75 * Math.PI radians)
   tiltSpeedMin: 0.05,
   tiltSpeedMax: 0.4,
   wobbleRangeMin: 5,

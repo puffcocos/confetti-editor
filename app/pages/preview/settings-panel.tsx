@@ -599,7 +599,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
 
             {/* 모양 옵션 */}
             <div className="pt-4 border-t border-gray-200">
-              <label className="block text-sm font-medium text-gray-700 mb-3">파티클 모양</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">기본 파티클</label>
               <div className="flex gap-2 mb-4">
                 {['circle', 'square', 'star'].map((shape) => (
                   <button
@@ -639,12 +639,32 @@ export function SettingsPanel(props: SettingsPanelProps) {
                   <div className="space-y-4 bg-blue-50 p-4 rounded-lg">
                     {/* 주의사항 */}
                     <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-xs text-gray-700">
-                      <p className="font-semibold mb-1">ℹ️ 주의사항:</p>
-                      <ul className="list-disc list-inside space-y-1 text-xs">
-                        <li>모든 path는 fill로 처리됩니다 (stroke 미지원)</li>
-                        <li>파티클은 단일 색상만 지원합니다</li>
-                        <li>성능을 위해 matrix를 미리 계산합니다</li>
-                      </ul>
+                      <p className="font-semibold mb-2">ℹ️ 주의사항:</p>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="font-medium mb-1">공통:</p>
+                          <ul className="list-disc list-inside space-y-1 text-xs ml-2">
+                            <li>모든 path는 fill로 처리됩니다 (stroke 미지원)</li>
+                            <li>파티클은 단일 색상만 지원합니다</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="font-medium mb-1">SVG Path (권장):</p>
+                          <ul className="list-disc list-inside space-y-1 text-xs ml-2">
+                            <li>✅ 빠른 렌더링 성능 (Path2D 사용)</li>
+                            <li>✅ Wobble, Tilt 효과 완벽 지원</li>
+                            <li>성능을 위해 matrix를 미리 계산합니다</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="font-medium mb-1">Full SVG:</p>
+                          <ul className="list-disc list-inside space-y-1 text-xs ml-2">
+                            <li>⚠️ 상대적으로 느린 성능 (Image 객체 사용)</li>
+                            <li>⚠️ 실험적 기능의 Wobble/Tilt 효과 미지원</li>
+                            <li>복잡한 그라디언트/색상이 필요할 때만 사용</li>
+                          </ul>
+                        </div>
+                      </div>
                     </div>
 
                     {/* 타입 선택 */}
@@ -652,7 +672,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
                       <label className="block text-xs font-medium text-gray-600 mb-2">
                         입력 타입
                       </label>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 mb-3">
                         <button
                           onClick={() => onCustomShapeTypeChange('path')}
                           className={`flex-1 px-3 py-2 rounded text-xs font-medium transition-colors ${
@@ -673,6 +693,27 @@ export function SettingsPanel(props: SettingsPanelProps) {
                         >
                           Full SVG
                         </button>
+                      </div>
+
+                      {/* 예시 파티클 불러오기 (이동 및 필터링) */}
+                      <div className="pt-1">
+                        <label className="block text-[10px] font-medium text-gray-500 mb-2 uppercase tracking-wider">
+                          💡 {customShapeType === 'path' ? 'Path' : 'SVG'} 예시 불러오기
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {EXAMPLE_SHAPE_PRESETS.filter((p) => p.type === customShapeType).map((preset) => (
+                            <button
+                              key={preset.name}
+                              onClick={() => onLoadExampleShape(preset)}
+                              className="px-3 py-2 bg-white text-gray-700 rounded hover:bg-gray-100 transition-colors text-xs font-medium border border-gray-200 shadow-sm"
+                              title={`${preset.name} ${
+                                customShapeType === 'path' ? 'Path' : 'SVG'
+                              } 불러오기`}
+                            >
+                              {preset.name}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
@@ -739,6 +780,22 @@ export function SettingsPanel(props: SettingsPanelProps) {
                         )}
                       </>
                     )}
+
+                    {/* 입력 입자 크기 배율 */}
+                    <div className="pt-3 border-t border-gray-100">
+                      <OptionSlider
+                        label="입력 입자 크기 배율"
+                        value={customShapeScalar}
+                        defaultValue={1}
+                        description="입력한 커스텀 입자의 기본 크기(scalar)를 조절합니다."
+                        min={0.1}
+                        max={5}
+                        step={0.1}
+                        onChange={onCustomShapeScalarChange}
+                        decimal={1}
+                        unit="x"
+                      />
+                    </div>
 
                     {/* 커스텀 파티클 저장 */}
                     <div className="pt-3 border-t border-gray-300">
@@ -849,24 +906,6 @@ export function SettingsPanel(props: SettingsPanelProps) {
                       </div>
                     )}
 
-                    {/* 예시 파티클 */}
-                    <div className="pt-3 border-t border-gray-300">
-                      <label className="block text-xs font-medium text-gray-600 mb-2">
-                        💡 예시 파티클 불러오기
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {EXAMPLE_SHAPE_PRESETS.map((preset) => (
-                          <button
-                            key={preset.name}
-                            onClick={() => onLoadExampleShape(preset)}
-                            className="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-xs font-medium border border-gray-300"
-                            title={`${preset.name} Path 불러오기`}
-                          >
-                            {preset.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>

@@ -50,7 +50,14 @@ function formatSingleOption(
   indent = 0,
   formatOptions?: FormatCodeOptions
 ): string {
-  const { shapes, ...rest } = option
+  // 메타데이터 추출 및 원본 객체에서 제거
+  const {
+    shapes: _shapes,
+    _useCustomShapes,
+    _selectedCustomShapes,
+    ...rest
+  } = option
+
   const indentStr = ' '.repeat(indent)
   const lines: string[] = []
 
@@ -59,8 +66,12 @@ function formatSingleOption(
     .split('\n')
     .map((line) => indentStr + line)
 
-  // shapes가 있는 경우
-  if (shapes && shapes.length > 0) {
+  // 이 효과가 커스텀 파티클을 사용하도록 설정되었는지 확인
+  const isCustomEffect = _useCustomShapes === true || (option.shapes && option.shapes.some((s: any) => typeof s !== 'string'))
+  const customShapesToUse = _selectedCustomShapes || formatOptions?.selectedCustomShapes || []
+
+  // shapes를 코드로 표시해야 하는 경우
+  if (isCustomEffect) {
     // 마지막 줄의 } 제거
     const restLines = restJson.slice(0, -1)
     lines.push(...restLines)
@@ -68,15 +79,19 @@ function formatSingleOption(
     // shapes 추가
     lines.push(`${indentStr}  "shapes": [`)
 
-    shapes.forEach((shape: any, index: number) => {
-      const shapeCode = formatShapeAsCode(shape, indent + 4, formatOptions)
-      const comma = index < shapes.length - 1 ? ',' : ''
-      lines.push(`${shapeCode}${comma}`)
-    })
+    // 커스텀 shape 코드 생성
+    if (customShapesToUse.length > 0) {
+      customShapesToUse.forEach((shapeMeta: CustomShapePreset, index: number) => {
+        const shapeCode = formatShapeMetaAsCode(shapeMeta, indent + 4)
+        const comma = index < customShapesToUse.length - 1 ? ',' : ''
+        lines.push(`${shapeCode}${comma}`)
+      })
+    }
 
     lines.push(`${indentStr}  ]`)
     lines.push(`${indentStr}}`)
   } else {
+    // 기본 파티클만 사용하는 경우 JSON.stringify 결과 그대로 사용 (shapes 포함됨)
     lines.push(...restJson)
   }
 
@@ -84,68 +99,18 @@ function formatSingleOption(
 }
 
 /**
- * Shape 객체를 코드 문자열로 변환
+ * shapeMeta를 코드 문자열로 변환
  */
-function formatShapeAsCode(
-  shape: any,
-  indent: number,
-  formatOptions?: FormatCodeOptions
-): string {
+function formatShapeMetaAsCode(shapeMeta: CustomShapePreset, indent: number): string {
   const indentStr = ' '.repeat(indent)
 
-  if (!shape) return `${indentStr}null`
-
-  // 기본 도형 문자열인 경우 (circle, square, star)
-  if (typeof shape === 'string') {
-    return `${indentStr}"${shape}"`
-  }
-
-  // Promise인 경우 또는 resolve된 shape 객체인 경우
-  const isPromise = typeof shape === 'object' && 'then' in shape
-  const isSvgShape = shape.type === 'svg'
-  const isPathShape = shape.type === 'path'
-
-  if (isPromise || isSvgShape || isPathShape) {
-    // 현재 입력 중인 커스텀 shape 확인 (formatOptions가 제공된 경우)
-    if (formatOptions) {
-      const {
-        customShapeType,
-        customShapePath,
-        customShapeSvg,
-        customShapeScalar,
-        selectedCustomShapes,
-      } = formatOptions
-
-      if (customShapeType === 'svg' && customShapeSvg?.trim()) {
-        const svgStr = customShapeSvg.replace(/\n/g, ' ').replace(/\s+/g, ' ')
-        return `${indentStr}createShape({ svg: \`${svgStr}\`, scalar: ${customShapeScalar || 1} })`
-      } else if (customShapeType === 'path' && customShapePath?.trim()) {
-        return `${indentStr}createShape({ path: "${customShapePath}" })`
-      }
-
-      // 선택된 저장된 커스텀 shape 확인
-      if (selectedCustomShapes) {
-        for (const preset of selectedCustomShapes) {
-          if (preset.type === 'svg' && preset.svg) {
-            const svgStr = preset.svg.replace(/\n/g, ' ').replace(/\s+/g, ' ')
-            return `${indentStr}createShape({ svg: \`${svgStr}\`, scalar: ${preset.scalar || 1} })`
-          } else if (preset.type === 'path' && preset.path) {
-            return `${indentStr}createShape({ path: "${preset.path}" })`
-          }
-        }
-      }
-    }
-
-    // fallback - resolved shape 객체인 경우 타입에 따라 placeholder 표시
-    if (isSvgShape) {
-      return `${indentStr}createShape({ svg: \`<svg>...</svg>\`, scalar: 1 })`
-    } else if (isPathShape) {
-      return `${indentStr}createShape({ path: "M..." })`
-    } else if (isPromise) {
-      // Promise는 아직 resolve되지 않은 상태
-      return `${indentStr}createShape({ /* shape data */ })`
-    }
+  if (shapeMeta.type === 'svg' && shapeMeta.svg) {
+    const svgStr = shapeMeta.svg.replace(/\n/g, ' ').replace(/\s+/g, ' ')
+    return `${indentStr}createShape({ svg: \`${svgStr}\`, scalar: ${shapeMeta.scalar || 1} })`
+  } else if (shapeMeta.type === 'path' && shapeMeta.path) {
+    return `${indentStr}createShape({ path: "${shapeMeta.path}" })`
   }
 
   return `${indentStr}null`
 }
+

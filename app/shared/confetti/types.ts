@@ -32,6 +32,10 @@ export interface ConfettiOptions extends BaseConfettiOptions {
   tiltSpeed?: [number, number]
   wobbleRange?: [number, number]
   wobbleSpeed?: [number, number]
+
+  // 내부 메타데이터 (UI 동기화 및 코드 생성용)
+  _useCustomShapes?: boolean
+  _selectedCustomShapes?: any[]
 }
 
 /**

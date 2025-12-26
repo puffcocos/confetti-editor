@@ -48,6 +48,13 @@ interface ShapeFromSvgOptions {
  *     </>
  *   );
  * }
+ *
+ * // 커스텀 SVG 사용 예시
+ * const star = createShape({
+ *   svg: '<svg viewBox="0 0 100 100"><path d="..." fill="currentColor"/></svg>',
+ *   scalar: 1.5
+ * });
+ * fire({ shapes: [star], particleCount: 50 });
  * ```
  */
 export function useConfetti() {

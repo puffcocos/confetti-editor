@@ -181,6 +181,37 @@ function LikeButton() {
 }
 ```
 
+### SVG 모양 사용 (택시)
+
+```tsx
+import { useConfetti } from '~/shared/confetti/use-confetti'
+
+function TaxiButton() {
+  const { fire, createShape } = useConfetti()
+
+  const handleTaxi = () => {
+    // 복잡한 SVG도 그대로 사용할 수 있습니다
+    const taxi = createShape({
+      svg: `
+        <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M59.1 14.5c-1.5-4.5-5.8-7.7-10.8-7.7..." fill="#FECE00"/>
+          ...
+        </svg>
+      `,
+      scalar: 1.5 // 크기 조절
+    })
+
+    fire({
+      shapes: [taxi],
+      particleCount: 20,
+      scalar: 1.5
+    })
+  }
+
+  return <button onClick={handleTaxi}>🚕 택시 호출</button>
+}
+```
+
 ### 별점 평가
 
 ```tsx

@@ -328,20 +328,59 @@ export function PreviewPage() {
         }
       }
     } else if (activeCustomPreset !== null) {
-      // 커스텀 프리셋 실행
+      // 커스텀 프리셋 실행 - SVG shape Promise resolve
       const preset = customPresets[activeCustomPreset]
-      fire(preset.options)
+      resolveShapePromises(preset.options).then((resolvedOptions) => {
+        fire(resolvedOptions)
+      })
     } else {
       // 프리셋이 선택되지 않은 경우 우측 커스텀 효과 실행
       fire(currentOptions)
     }
   }
 
+  // shape Promise를 resolve하는 헬퍼 함수
+  const resolveShapePromises = async (options: ConfettiOptions[]): Promise<ConfettiOptions[]> => {
+    return await Promise.all(
+      options.map(async (option) => {
+        if (!option.shapes || !Array.isArray(option.shapes)) {
+          return option
+        }
+
+        // SVG shape가 있는지 확인
+        const hasSvgShape = option.shapes.some(
+          (shape) => shape && typeof shape === 'object' && 'then' in shape
+        )
+
+        if (!hasSvgShape) {
+          return option
+        }
+
+        // SVG shape Promise를 resolve하고 flat: true 추가
+        const resolvedShapes = await Promise.all(
+          option.shapes.map((shape) => {
+            if (shape && typeof shape === 'object' && 'then' in shape) {
+              return shape
+            }
+            return Promise.resolve(shape)
+          })
+        )
+
+        return {
+          ...option,
+          shapes: resolvedShapes,
+          flat: true, // SVG shape에는 회전/기울어짐 제거
+        }
+      })
+    )
+  }
+
   // 커스텀 프리셋만 실행 (커스텀 프리셋 섹션의 fire! 버튼용)
-  const fireCustomPreset = () => {
+  const fireCustomPreset = async () => {
     if (activeCustomPreset !== null) {
       const preset = customPresets[activeCustomPreset]
-      fire(preset.options)
+      const resolvedOptions = await resolveShapePromises(preset.options)
+      fire(resolvedOptions)
     }
   }
 

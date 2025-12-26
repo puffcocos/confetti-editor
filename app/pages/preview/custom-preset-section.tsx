@@ -234,7 +234,12 @@ export function CustomPresetSection({
                     {selectedPresetForCode === index && (
                       <button
                         onClick={() =>
-                          onCopyToClipboard(formatAsFireCode(preset.options), index)
+                          onCopyToClipboard(
+                            formatAsFireCode(preset.options, {
+                              selectedCustomShapes: preset.shapeMeta,
+                            }),
+                            index
+                          )
                         }
                         className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition-colors"
                         title="코드 복사"
@@ -247,7 +252,11 @@ export function CustomPresetSection({
                     <>
                       <div className="bg-gray-900 rounded p-3 overflow-x-auto">
                         <pre className="text-xs text-green-400 font-mono">
-                          <code>{formatAsFireCode(preset.options)}</code>
+                          <code>
+                            {formatAsFireCode(preset.options, {
+                              selectedCustomShapes: preset.shapeMeta,
+                            })}
+                          </code>
                         </pre>
                       </div>
                       <p className="text-xs text-gray-500 mt-2">

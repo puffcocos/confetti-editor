@@ -7,6 +7,7 @@ export interface CustomPreset {
   name: string
   options: ConfettiOptions[]
   duration?: number // 애니메이션 지속 시간 (밀리초)
+  shapeMeta?: CustomShapePreset[] // 코드 미리보기용 shape 메타데이터
 }
 
 /**

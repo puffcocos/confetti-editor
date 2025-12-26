@@ -136,11 +136,14 @@ function formatShapeAsCode(
       }
     }
 
-    // fallback
+    // fallback - resolved shape 객체인 경우 타입에 따라 placeholder 표시
     if (isSvgShape) {
-      return `${indentStr}createShape({ svg: "...", scalar: 1 })`
+      return `${indentStr}createShape({ svg: \`<svg>...</svg>\`, scalar: 1 })`
     } else if (isPathShape) {
-      return `${indentStr}createShape({ path: "..." })`
+      return `${indentStr}createShape({ path: "M..." })`
+    } else if (isPromise) {
+      // Promise는 아직 resolve되지 않은 상태
+      return `${indentStr}createShape({ /* shape data */ })`
     }
   }
 

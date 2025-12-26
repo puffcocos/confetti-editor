@@ -437,9 +437,31 @@ export function PreviewPage() {
       return
     }
 
+    // shape 메타데이터 수집 (코드 미리보기용)
+    const shapeMeta: CustomShapePreset[] = []
+    if (useCustomShapes) {
+      if (customShapeType === 'svg' && customShapeSvg.trim()) {
+        shapeMeta.push({
+          name: 'custom-svg',
+          type: 'svg',
+          svg: customShapeSvg,
+          scalar: customShapeScalar,
+        })
+      } else if (customShapeType === 'path' && customShapePath.trim()) {
+        shapeMeta.push({
+          name: 'custom-path',
+          type: 'path',
+          path: customShapePath,
+        })
+      }
+      // 선택된 저장된 파티클들도 추가
+      shapeMeta.push(...selectedCustomShapes)
+    }
+
     const newPreset: CustomPreset = {
       name: presetName,
       options: presetOptions,
+      shapeMeta: shapeMeta.length > 0 ? shapeMeta : undefined,
     }
 
     setCustomPresets([...customPresets, newPreset])

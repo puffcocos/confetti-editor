@@ -860,7 +860,7 @@ export function PreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8 relative">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8 relative overflow-x-hidden">
       {/* Snow 효과용 어두운 오버레이 */}
       {showSnowOverlay && (
         <div

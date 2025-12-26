@@ -1229,7 +1229,7 @@ function OptionSlider({
         <span className="text-xs text-gray-500">(기본값: {defaultValue})</span>
         <div className="group relative">
           <span className="cursor-help text-gray-400 hover:text-gray-600">ⓘ</span>
-          <div className="invisible group-hover:visible absolute left-0 top-6 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+          <div className="hidden group-hover:block absolute left-0 top-6 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
             {description}
           </div>
         </div>

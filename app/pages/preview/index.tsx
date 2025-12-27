@@ -411,15 +411,29 @@ export function PreviewPage() {
       let optionsWithShapes: ConfettiOptions[] = preset.options
       if (preset.shapeMeta && preset.shapeMeta.length > 0) {
         optionsWithShapes = preset.options.map((option) => {
-          const shapes = preset.shapeMeta!.map((shapeMeta) => {
+          const allShapes: any[] = []
+
+          // 기존 옵션의 기본 파티클 보존 (문자열 shapes)
+          if (option.shapes && Array.isArray(option.shapes)) {
+            option.shapes.forEach((shape: any) => {
+              if (typeof shape === 'string') {
+                allShapes.push(shape)
+              }
+            })
+          }
+
+          // shapeMeta의 커스텀 파티클 추가
+          const customShapes = preset.shapeMeta!.map((shapeMeta) => {
             if (shapeMeta.type === 'svg') {
               return createShape({ svg: shapeMeta.svg!, scalar: shapeMeta.scalar })
             }
             return createShape({ path: shapeMeta.path!, matrix: shapeMeta.matrix })
           })
+          allShapes.push(...customShapes)
+
           return {
             ...option,
-            shapes: shapes as any, // Shape | Promise<Shape> 타입 허용
+            shapes: allShapes.length > 0 ? (allShapes as any) : option.shapes, // Shape | Promise<Shape> 타입 허용
           }
         })
       }

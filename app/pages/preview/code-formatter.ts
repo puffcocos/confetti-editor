@@ -52,7 +52,6 @@ function formatSingleOption(
 ): string {
   // 메타데이터 추출 및 원본 객체에서 제거
   const {
-    shapes: _shapes,
     _useCustomShapes,
     _selectedCustomShapes,
     ...rest
@@ -61,17 +60,18 @@ function formatSingleOption(
   const indentStr = ' '.repeat(indent)
   const lines: string[] = []
 
-  // 기본 옵션들을 JSON으로 변환
-  const restJson = JSON.stringify(rest, null, 2)
-    .split('\n')
-    .map((line) => indentStr + line)
-
   // 이 효과가 커스텀 파티클을 사용하도록 설정되었는지 확인
   const isCustomEffect = _useCustomShapes === true || (option.shapes && option.shapes.some((s: any) => typeof s !== 'string'))
   const customShapesToUse = _selectedCustomShapes || formatOptions?.selectedCustomShapes || []
 
-  // shapes를 코드로 표시해야 하는 경우
+  // shapes를 코드로 표시해야 하는 경우 (커스텀 shape)
   if (isCustomEffect) {
+    // shapes를 제외한 나머지 옵션들을 JSON으로 변환
+    const { shapes: _shapes, ...restWithoutShapes } = rest
+    const restJson = JSON.stringify(restWithoutShapes, null, 2)
+      .split('\n')
+      .map((line) => indentStr + line)
+
     // 마지막 줄의 } 제거하고, 그 전 줄에 쉼표 추가 (shapes 속성을 위해)
     const restLines = restJson.slice(0, -1)
 
@@ -102,6 +102,9 @@ function formatSingleOption(
     lines.push(`${indentStr}}`)
   } else {
     // 기본 파티클만 사용하는 경우 JSON.stringify 결과 그대로 사용 (shapes 포함됨)
+    const restJson = JSON.stringify(rest, null, 2)
+      .split('\n')
+      .map((line) => indentStr + line)
     lines.push(...restJson)
   }
 

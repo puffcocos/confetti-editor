@@ -197,12 +197,12 @@ export function PreviewPage() {
       // 커스텀 파티클과 기본 도형 결합
       const allShapes: any[] = []
 
-      // 기본 도형 추가
-      if (!useCustomShapes && shapes.length > 0) {
+      // 기본 도형 추가 (문자열로 추가)
+      if (shapes.length > 0) {
         allShapes.push(...shapes)
       }
 
-      // 커스텀 파티클 추가
+      // 커스텀 파티클 추가 (Shape 객체로 추가)
       if (useCustomShapes) {
         // 입력 중인 Path 또는 SVG가 있으면 바로 사용 (저장하지 않아도 테스트 가능)
         if (customShapeType === 'path' && customShapePath.trim()) {

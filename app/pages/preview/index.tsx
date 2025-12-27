@@ -497,25 +497,22 @@ export function PreviewPage() {
     }
 
     // shape 메타데이터 수집 (코드 미리보기용)
+    // 모든 옵션에서 커스텀 shape 메타데이터를 수집
     const shapeMeta: CustomShapePreset[] = []
-    if (useCustomShapes) {
-      if (customShapeType === 'svg' && customShapeSvg.trim()) {
-        shapeMeta.push({
-          name: 'custom-svg',
-          type: 'svg',
-          svg: customShapeSvg,
-          scalar: customShapeScalar,
-        })
-      } else if (customShapeType === 'path' && customShapePath.trim()) {
-        shapeMeta.push({
-          name: 'custom-path',
-          type: 'path',
-          path: customShapePath,
+    const shapeMetaSet = new Set<string>() // 중복 제거용
+
+    presetOptions.forEach((option) => {
+      // 각 옵션의 _selectedCustomShapes에서 메타데이터 수집
+      if (option._selectedCustomShapes && Array.isArray(option._selectedCustomShapes)) {
+        option._selectedCustomShapes.forEach((meta) => {
+          const key = JSON.stringify(meta)
+          if (!shapeMetaSet.has(key)) {
+            shapeMetaSet.add(key)
+            shapeMeta.push(meta)
+          }
         })
       }
-      // 선택된 저장된 파티클들도 추가
-      shapeMeta.push(...selectedCustomShapes)
-    }
+    })
 
     const newPreset: CustomPreset = {
       name: presetName,
@@ -947,6 +944,39 @@ export function PreviewPage() {
         jsonString = fireMatch[1].trim()
       }
 
+      // createShape() 호출에서 메타데이터 추출
+      const extractShapeMetadata = (code: string): CustomShapePreset[] => {
+        const shapeMeta: CustomShapePreset[] = []
+
+        // SVG shape 패턴: createShape({ svg: `...`, scalar: ... })
+        const svgPattern = /createShape\s*\(\s*\{\s*svg\s*:\s*`([^`]+)`\s*,\s*scalar\s*:\s*([0-9.]+)\s*\}\s*\)/g
+        let svgMatch
+        while ((svgMatch = svgPattern.exec(code)) !== null) {
+          shapeMeta.push({
+            name: 'imported-svg',
+            type: 'svg',
+            svg: svgMatch[1],
+            scalar: parseFloat(svgMatch[2]),
+          })
+        }
+
+        // Path shape 패턴: createShape({ path: "..." })
+        const pathPattern = /createShape\s*\(\s*\{\s*path\s*:\s*"([^"]+)"\s*\}\s*\)/g
+        let pathMatch
+        while ((pathMatch = pathPattern.exec(code)) !== null) {
+          shapeMeta.push({
+            name: 'imported-path',
+            type: 'path',
+            path: pathMatch[1],
+          })
+        }
+
+        return shapeMeta
+      }
+
+      // 메타데이터 추출
+      const extractedShapeMeta = extractShapeMetadata(jsonString)
+
       // Function 생성자를 사용하여 안전하게 JavaScript 객체 파싱
       // createShape 함수를 실행 컨텍스트에 제공하여 커스텀 shape 파싱 지원
       // eval()보다 안전하고, JSON.parse()보다 유연함 (따옴표 없는 키도 파싱 가능)
@@ -955,10 +985,19 @@ export function PreviewPage() {
       // 단일 객체를 배열로 변환
       const optionsArray = Array.isArray(parsed) ? parsed : [parsed]
 
-      // 각 요소가 유효한 ConfettiOptions인지 간단히 검증
+      // 각 요소가 유효한 ConfettiOptions인지 간단히 검증하고 메타데이터 첨부
       for (let i = 0; i < optionsArray.length; i++) {
         if (typeof optionsArray[i] !== 'object' || optionsArray[i] === null) {
           throw new Error(`효과 ${i + 1}이(가) 올바른 객체 형식이 아닙니다.`)
+        }
+
+        // 커스텀 shape가 있는 경우 메타데이터 첨부
+        if (optionsArray[i].shapes && Array.isArray(optionsArray[i].shapes)) {
+          const hasCustomShapes = optionsArray[i].shapes.some((s: any) => typeof s !== 'string')
+          if (hasCustomShapes && extractedShapeMeta.length > 0) {
+            optionsArray[i]._useCustomShapes = true
+            optionsArray[i]._selectedCustomShapes = extractedShapeMeta
+          }
         }
       }
 

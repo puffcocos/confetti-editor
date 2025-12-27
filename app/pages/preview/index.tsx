@@ -934,8 +934,9 @@ export function PreviewPage() {
       }
 
       // Function 생성자를 사용하여 안전하게 JavaScript 객체 파싱
+      // createShape 함수를 실행 컨텍스트에 제공하여 커스텀 shape 파싱 지원
       // eval()보다 안전하고, JSON.parse()보다 유연함 (따옴표 없는 키도 파싱 가능)
-      const parsed = new Function(`return ${jsonString}`)()
+      const parsed = new Function('createShape', `return ${jsonString}`)(createShape)
 
       // 배열인지 확인
       if (!Array.isArray(parsed)) {

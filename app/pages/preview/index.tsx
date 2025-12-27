@@ -927,10 +927,10 @@ export function PreviewPage() {
       // fire(...) 패턴에서 내용 추출
       let jsonString = code.trim()
 
-      // fire( 로 시작하는 경우 제거
-      const fireMatch = jsonString.match(/fire\s*\(\s*(\[[\s\S]*\])\s*\)/)
+      // fire( 로 시작하는 경우 제거 (배열 또는 단일 객체 모두 지원)
+      const fireMatch = jsonString.match(/fire\s*\(\s*([\s\S]*)\s*\)\s*$/)
       if (fireMatch) {
-        jsonString = fireMatch[1]
+        jsonString = fireMatch[1].trim()
       }
 
       // Function 생성자를 사용하여 안전하게 JavaScript 객체 파싱
@@ -938,20 +938,18 @@ export function PreviewPage() {
       // eval()보다 안전하고, JSON.parse()보다 유연함 (따옴표 없는 키도 파싱 가능)
       const parsed = new Function('createShape', `return ${jsonString}`)(createShape)
 
-      // 배열인지 확인
-      if (!Array.isArray(parsed)) {
-        throw new Error('배열 형식이어야 합니다. fire([...]) 형식으로 붙여넣어주세요.')
-      }
+      // 단일 객체를 배열로 변환
+      const optionsArray = Array.isArray(parsed) ? parsed : [parsed]
 
       // 각 요소가 유효한 ConfettiOptions인지 간단히 검증
-      for (let i = 0; i < parsed.length; i++) {
-        if (typeof parsed[i] !== 'object' || parsed[i] === null) {
+      for (let i = 0; i < optionsArray.length; i++) {
+        if (typeof optionsArray[i] !== 'object' || optionsArray[i] === null) {
           throw new Error(`효과 ${i + 1}이(가) 올바른 객체 형식이 아닙니다.`)
         }
       }
 
       // presetOptions에 추가
-      setPresetOptions([...presetOptions, ...parsed])
+      setPresetOptions([...presetOptions, ...optionsArray])
     } catch (error) {
       if (error instanceof SyntaxError) {
         throw new Error('유효하지 않은 JavaScript 형식입니다. 코드를 확인해주세요.')

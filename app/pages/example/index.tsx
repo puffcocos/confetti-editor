@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useConfetti } from '~/shared/confetti/use-confetti'
 
 type EffectMode = 'fire' | 'fireFrame'
@@ -33,7 +33,21 @@ export function ExamplePage() {
   const [selectedDeviceIndex, setSelectedDeviceIndex] = useState(2) // iPhone 12/13 기본값
   const [customWidth, setCustomWidth] = useState(390)
   const [customHeight, setCustomHeight] = useState(844)
+  // Canvas 리렌더링을 위한 key (크기 변경 시 canvas 완전 초기화)
+  const [canvasKey, setCanvasKey] = useState(0)
 
+  // Custom 크기 변경 시 debounce 후 canvas 리렌더링
+  useEffect(() => {
+    if (selectedDeviceIndex !== DEVICE_PRESETS.length - 1) {
+      return // Custom 모드가 아니면 무시
+    }
+
+    const timer = setTimeout(() => {
+      setCanvasKey((prev) => prev + 1)
+    }, 500) // 500ms 후 canvas 리렌더링
+
+    return () => clearTimeout(timer)
+  }, [customWidth, customHeight, selectedDeviceIndex])
 
   const handleTest = () => {
     setError('')
@@ -195,6 +209,8 @@ export function ExamplePage() {
                       }
                       setCustomWidth(device.width)
                       setCustomHeight(device.height)
+                      // Canvas 크기 변경 시 완전히 리렌더링
+                      setCanvasKey((prev) => prev + 1)
                     }}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedDeviceIndex === index
@@ -256,6 +272,7 @@ export function ExamplePage() {
               }}
             >
               <canvas
+                key={canvasKey}
                 ref={setConfettiCanvasRef}
                 className="w-full h-full block"
               />

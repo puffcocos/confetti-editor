@@ -510,6 +510,40 @@ export function PreviewPage() {
     setCustomPresets(customPresets.filter((_, i) => i !== index))
   }
 
+  // 저장된 프리셋에서 효과 제거
+  const deleteEffectFromPreset = (presetIndex: number, effectIndex: number) => {
+    const updatedPresets = [...customPresets]
+    const preset = updatedPresets[presetIndex]
+
+    // 효과가 1개만 남았으면 프리셋 전체 삭제 여부 확인
+    if (preset.options.length === 1) {
+      const confirmDelete = confirm(`"${preset.name}" 프리셋의 마지막 효과입니다. 프리셋을 삭제하시겠습니까?`)
+      if (confirmDelete) {
+        deleteCustomPreset(presetIndex)
+        // 수정 모드였다면 취소
+        if (editingPresetIndex === presetIndex && editingEffectIndex === effectIndex) {
+          cancelEditMode()
+        }
+      }
+      return
+    }
+
+    // 효과 제거
+    preset.options = preset.options.filter((_, i) => i !== effectIndex)
+    setCustomPresets(updatedPresets)
+
+    // 수정 중이던 효과를 제거한 경우 수정 모드 취소
+    if (editingPresetIndex === presetIndex && editingEffectIndex === effectIndex) {
+      cancelEditMode()
+    }
+    // 제거된 효과 뒤의 효과를 수정 중이었다면 인덱스 조정
+    else if (editingPresetIndex === presetIndex && editingEffectIndex !== null && editingEffectIndex > effectIndex) {
+      setEditingEffectIndex(editingEffectIndex - 1)
+    }
+
+    alert(`효과가 제거되었습니다! (남은 효과: ${preset.options.length}개)`)
+  }
+
   // 저장된 프리셋에 효과 추가
   // 저장된 프리셋에 효과 추가
   const addEffectToSavedPreset = (presetIndex: number) => {
@@ -1191,6 +1225,7 @@ export function PreviewPage() {
               onSelectCustomPreset={selectCustomPreset}
               onDeleteCustomPreset={deleteCustomPreset}
               onLoadEffectToSettings={loadEffectToSettings}
+              onDeleteEffectFromPreset={deleteEffectFromPreset}
               onAddEffectToSavedPreset={addEffectToSavedPreset}
               onCopyToClipboard={copyToClipboard}
               onFireCustomPreset={fireCustomPreset}

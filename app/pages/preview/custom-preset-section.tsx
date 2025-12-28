@@ -18,6 +18,7 @@ interface CustomPresetSectionProps {
   onSelectCustomPreset: (index: number) => void
   onDeleteCustomPreset: (index: number) => void
   onLoadEffectToSettings: (presetIndex: number, effectIndex: number) => void
+  onDeleteEffectFromPreset: (presetIndex: number, effectIndex: number) => void
   onAddEffectToSavedPreset: (presetIndex: number) => void
   onCopyToClipboard: (text: string, type: 'main' | number) => Promise<void>
   onFireCustomPreset: () => void
@@ -43,6 +44,7 @@ export function CustomPresetSection({
   onSelectCustomPreset,
   onDeleteCustomPreset,
   onLoadEffectToSettings,
+  onDeleteEffectFromPreset,
   onAddEffectToSavedPreset,
   onCopyToClipboard,
   onFireCustomPreset,
@@ -283,30 +285,39 @@ export function CustomPresetSection({
                       </button>
                     </div>
                     <div className="space-y-2">
-                      {preset.options.map((option, effectIndex) => (
-                        <div
-                          key={effectIndex}
-                          className={`flex items-center gap-2 p-2 rounded border transition-colors ${
-                            editingPresetIndex === index && editingEffectIndex === effectIndex
-                              ? 'bg-yellow-50 border-yellow-400'
-                              : 'bg-gray-50 border-gray-300'
-                          }`}
-                        >
-                          <span className="flex-1 text-xs text-gray-700 font-mono truncate">
-                            효과 {effectIndex + 1}: {option.particleCount}개 파티클, {option.spread}
-                            ° 퍼짐
-                          </span>
-                          <button
-                            onClick={() => onLoadEffectToSettings(index, effectIndex)}
-                            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs font-medium"
-                            title="이 효과를 우측 설정 메뉴로 불러와 수정합니다"
+                      {preset.options.map((option, effectIndex) => {
+                        const isEditing = editingPresetIndex === index && editingEffectIndex === effectIndex
+
+                        return (
+                          <div
+                            key={effectIndex}
+                            className={`flex items-center gap-2 p-2 rounded border transition-colors ${
+                              isEditing
+                                ? 'bg-yellow-50 border-yellow-400'
+                                : 'bg-gray-50 border-gray-300'
+                            }`}
                           >
-                            {editingPresetIndex === index && editingEffectIndex === effectIndex
-                              ? '수정 중'
-                              : '수정'}
-                          </button>
-                        </div>
-                      ))}
+                            <span className="flex-1 text-xs text-gray-700 font-mono truncate">
+                              효과 {effectIndex + 1}: {option.particleCount}개 파티클, {option.spread}
+                              ° 퍼짐
+                            </span>
+                            <button
+                              onClick={() => onLoadEffectToSettings(index, effectIndex)}
+                              className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-xs font-medium"
+                              title="이 효과를 우측 설정 메뉴로 불러와 수정합니다"
+                            >
+                              {isEditing ? '수정 중' : '수정'}
+                            </button>
+                            <button
+                              onClick={() => onDeleteEffectFromPreset(index, effectIndex)}
+                              className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs font-medium"
+                              title="이 효과를 프리셋에서 제거합니다"
+                            >
+                              제거
+                            </button>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                 </div>

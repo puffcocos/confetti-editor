@@ -247,9 +247,6 @@ export function useConfetti() {
    * ```
    */
   const fireFrame = useCallback((frame: ConfettiFrame) => {
-    // 커스텀 canvas가 설정되어 있으면 해당 canvas 사용, 아니면 기본 confetti 사용
-    const confettiFn = customConfettiRef.current || confetti
-
     const startTime = performance.now()
     let animationId: number | null = null
 
@@ -262,8 +259,8 @@ export function useConfetti() {
         return
       }
 
-      // 프레임의 execute 함수 실행
-      frame.execute(confettiFn)
+      // 프레임의 execute 함수 실행 (fire 함수 전달)
+      frame.execute(fire)
 
       // 다음 프레임 요청
       animationId = requestAnimationFrame(animate)
@@ -279,7 +276,7 @@ export function useConfetti() {
         animationId = null
       }
     }
-  }, [])
+  }, [fire])
 
   return { fire, fireFrame, createShape, setConfettiCanvasRef }
 }

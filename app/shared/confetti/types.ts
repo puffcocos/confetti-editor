@@ -17,8 +17,7 @@
  */
 
 // 로컬 confetti import
-import type { CreateTypes, Shape } from './lib/canvas-confetti/confetti'
-import confetti from './lib/canvas-confetti/confetti'
+import type { Shape } from './lib/canvas-confetti/confetti'
 
 // 로컬 canvas-confetti의 기본 타입
 import type { Options as BaseConfettiOptions } from './lib/canvas-confetti/confetti'
@@ -49,9 +48,9 @@ export interface ConfettiOptions extends Omit<BaseConfettiOptions, 'shapes'> {
 export interface ConfettiFrame {
   /**
    * confetti fire 함수를 받아서 실행할 로직
-   * @param fire - confetti 발사 함수 (기본 confetti 또는 커스텀 canvas의 confetti)
+   * @param fire - confetti 발사 함수 (ConfettiOptions 또는 배열을 받음)
    */
-  execute: (fire: typeof confetti | CreateTypes) => void
+  execute: (fire: (options?: ConfettiOptions | ConfettiOptions[]) => Promise<void>) => void
   /**
    * 프레임 실행 지속 시간 (밀리초)
    */

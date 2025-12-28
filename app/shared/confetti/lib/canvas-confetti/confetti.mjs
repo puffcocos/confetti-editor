@@ -464,15 +464,21 @@ var module = {}
           height
         )
       } else {
-        // 3D tilt rendering - apply tilt scales like bitmap shapes
+        // 3D tilt rendering - use matrix transform like bitmap shapes
         var scaleX = Math.abs(x2 - x1) * 0.1
         var scaleY = Math.abs(y2 - y1) * 0.1
 
-        // Apply rotation and scale transformations
-        context.translate(fetti.x, fetti.y)
-        context.rotate(rotation)
-        context.scale(scaleX, scaleY)
+        // Create transform matrix similar to bitmap rendering
+        var matrix = new DOMMatrix([
+          Math.cos(rotation) * scaleX,
+          Math.sin(rotation) * scaleX,
+          -Math.sin(rotation) * scaleY,
+          Math.cos(rotation) * scaleY,
+          fetti.x,
+          fetti.y,
+        ])
 
+        context.setTransform(matrix)
         context.drawImage(
           fetti.shape.image,
           -width / 2,
@@ -480,6 +486,7 @@ var module = {}
           width,
           height
         )
+        context.setTransform(1, 0, 0, 1, 0, 0) // Reset transform
       }
 
       context.restore()

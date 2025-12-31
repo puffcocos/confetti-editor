@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ConfettiOptions } from 'refetti'
+import type { ConfettiOptions } from 'canvas-confetti-hook'
 import type { CustomPreset } from './types'
 import { formatAsFireCode } from './code-formatter'
 

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
-import { confettiPresets } from 'refetti'
-import { useConfetti } from 'refetti'
+import { confettiPresets } from 'canvas-confetti-hook'
+import { useConfetti } from 'canvas-confetti-hook'
 import { useLocalStorage } from '~/hooks/use-local-storage'
 import { PresetSection } from './preset-section'
 import { CustomPresetSection } from './custom-preset-section'

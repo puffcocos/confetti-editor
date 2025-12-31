@@ -1,8 +1,8 @@
 ---
-"react-confetti-kit": minor
+"canvas-confetti-hook": minor
 ---
 
-Initial release of react-confetti-kit - A modern React confetti library
+Initial release of canvas-confetti-hook - A modern React hook for canvas-confetti
 
 Features:
 - Built on canvas-confetti with enhanced TypeScript support

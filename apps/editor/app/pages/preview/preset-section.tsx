@@ -1,4 +1,4 @@
-import { confettiPresets } from 'refetti'
+import { confettiPresets } from 'canvas-confetti-hook'
 
 interface PresetSectionProps {
   activePreset: string | null

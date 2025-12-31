@@ -1,6 +1,6 @@
-# React Confetti Kit
+# Canvas Confetti Hook
 
-A modern React confetti library built on canvas-confetti with TypeScript support.
+A modern React hook for canvas-confetti with TypeScript support.
 
 ## Features
 
@@ -14,17 +14,17 @@ A modern React confetti library built on canvas-confetti with TypeScript support
 ## Installation
 
 ```bash
-npm install react-confetti-kit
+npm install canvas-confetti-hook
 # or
-pnpm add react-confetti-kit
+pnpm add canvas-confetti-hook
 # or
-yarn add react-confetti-kit
+yarn add canvas-confetti-hook
 ```
 
 ## Usage
 
 ```tsx
-import { useConfetti } from 'react-confetti-kit'
+import { useConfetti } from 'canvas-confetti-hook'
 
 function MyComponent() {
   const { fire } = useConfetti()

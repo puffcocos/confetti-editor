@@ -1,4 +1,4 @@
-import { confettiPresets } from '~/shared/confetti/presets'
+import { confettiPresets } from 'refetti'
 
 interface PresetSectionProps {
   activePreset: string | null

@@ -1,4 +1,4 @@
-import type { ConfettiOptions } from '~/shared/confetti/types'
+import type { ConfettiOptions } from 'refetti'
 
 /**
  * 에디터 전용 ConfettiOptions 확장 타입

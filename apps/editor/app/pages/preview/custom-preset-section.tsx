@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ConfettiOptions } from '~/shared/confetti/types'
+import type { ConfettiOptions } from 'refetti'
 import type { CustomPreset } from './types'
 import { formatAsFireCode } from './code-formatter'
 

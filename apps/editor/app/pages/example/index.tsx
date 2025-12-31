@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useConfetti } from '~/shared/confetti/use-confetti'
+import { useConfetti } from 'refetti'
 
 type EffectMode = 'fire' | 'fireFrame'
 

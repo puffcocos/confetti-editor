@@ -2,7 +2,7 @@
   "name": "@confetti-editor/app",
   "private": true,
   "type": "module",
-  "homepage": "https://puffcocos.github.io/react-confetti-kit/",
+  "homepage": "https://puffcocos.github.io/confetti-editor/",
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",

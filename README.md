@@ -2,7 +2,7 @@
 
 React 기반의 인터랙티브한 confetti 효과 에디터이자 라이브러리입니다. [canvas-confetti](https://github.com/catdad/canvas-confetti)를 기반으로 한 사용하기 쉬운 React 훅과 프리셋을 제공합니다.
 
-🎯 **[Live Demo](https://puffcocos.github.io/confetti-editor/)** | 📚 **[API 문서](./docs/api-reference.md)**
+🎯 **[Live Demo](https://puffcocos.github.io/react-confetti-kit/)** | 📚 **[API 문서](./docs/api-reference.md)**
 
 ## 주요 기능
 
@@ -176,7 +176,7 @@ confetti-editor/
 ### 아키텍처 특징
 
 - **SPA Mode**: `ssr: false` 설정으로 클라이언트 전용 애플리케이션
-- **GitHub Pages 배포**: basename `/confetti-editor/` 설정
+- **GitHub Pages 배포**: basename `/react-confetti-kit/` 설정
 - **로컬 스토리지**: 커스텀 프리셋 및 색상 저장
 - **File-based Routing**: `app/routes.ts`에서 라우트 정의
 

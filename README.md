@@ -2,7 +2,7 @@
 
 React 기반의 인터랙티브한 confetti 효과 에디터이자 라이브러리입니다. [canvas-confetti](https://github.com/catdad/canvas-confetti)를 기반으로 한 사용하기 쉬운 React 훅과 프리셋을 제공합니다.
 
-🎯 **[Live Demo](https://puffcocos.github.io/confetti-editor/)** | 📚 **[API 문서](./docs/api-reference.md)**
+🎯 **[Live Demo](https://puffcocos.github.io/refetti/)** | 📚 **[API 문서](./docs/api-reference.md)**
 
 ## 주요 기능
 
@@ -138,21 +138,22 @@ fire(confettiPresets.schoolPride) // 학교 프라이드
 ## 프로젝트 구조
 
 ```
-confetti-editor/
-├── app/
-│   ├── shared/
-│   │   └── confetti/              # 💎 Confetti 라이브러리 코드
-│   │       ├── use-confetti.ts    # 메인 훅 (fire, createShape, setConfettiCanvasRef)
-│   │       ├── presets.ts         # 8가지 프리셋 정의
-│   │       └── types.ts           # TypeScript 타입 re-export
-│   ├── pages/
-│   │   ├── home.tsx               # 홈 페이지
-│   │   ├── preview/               # 인터랙티브 에디터 (메인 기능)
-│   │   │   ├── index.tsx          # 에디터 페이지 (상태 관리)
-│   │   │   ├── preset-section.tsx # 프리셋 섹션
-│   │   │   └── ...
-│   │   └── example/               # 사용 예제 페이지
-│   └── components/                # 재사용 가능한 UI 컴포넌트
+refetti/
+├── packages/
+│   └── refetti/                   # 💎 npm 패키지
+│       ├── src/
+│       │   ├── use-confetti.ts    # 메인 훅 (fire, createShape, setConfettiCanvasRef)
+│       │   ├── presets.ts         # 8가지 프리셋 정의
+│       │   ├── types.ts           # TypeScript 타입 정의
+│       │   └── vendors/           # canvas-confetti 로컬 빌드
+│       └── dist/                  # 빌드 결과물
+├── apps/
+│   └── editor/                    # 인터랙티브 에디터 앱
+│       └── app/
+│           ├── pages/
+│           │   ├── preview/       # 에디터 메인 페이지
+│           │   └── example/       # 사용 예제 페이지
+│           └── components/        # UI 컴포넌트
 └── docs/                          # 📚 문서
     ├── api-reference.md           # API 문서
     ├── presets.md                 # 프리셋 가이드
@@ -175,7 +176,7 @@ confetti-editor/
 ### 아키텍처 특징
 
 - **SPA Mode**: `ssr: false` 설정으로 클라이언트 전용 애플리케이션
-- **GitHub Pages 배포**: basename `/confetti-editor/` 설정
+- **GitHub Pages 배포**: basename `/refetti/` 설정
 - **로컬 스토리지**: 커스텀 프리셋 및 색상 저장
 - **File-based Routing**: `app/routes.ts`에서 라우트 정의
 

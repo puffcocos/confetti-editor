@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ConfettiOptions } from 'canvas-confetti-hook'
+import type { ConfettiOptions } from '@cocopalm/canvas-confetti-hook'
 import type { CustomPreset, CustomColorPreset, CustomShapePreset } from './types'
 import { DEFAULT_VALUES, OPTION_INFO } from './constants'
 import { EXAMPLE_SHAPE_PRESETS } from './shape-presets'

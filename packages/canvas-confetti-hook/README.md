@@ -14,17 +14,17 @@ A modern React hook for canvas-confetti with TypeScript support.
 ## Installation
 
 ```bash
-npm install canvas-confetti-hook
+npm install @cocopalm/canvas-confetti-hook
 # or
-pnpm add canvas-confetti-hook
+pnpm add @cocopalm/canvas-confetti-hook
 # or
-yarn add canvas-confetti-hook
+yarn add @cocopalm/canvas-confetti-hook
 ```
 
 ## Usage
 
 ```tsx
-import { useConfetti } from 'canvas-confetti-hook'
+import { useConfetti } from '@cocopalm/canvas-confetti-hook'
 
 function MyComponent() {
   const { fire } = useConfetti()

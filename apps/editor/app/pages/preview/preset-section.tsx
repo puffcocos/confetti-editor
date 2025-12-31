@@ -1,4 +1,4 @@
-import { confettiPresets } from 'canvas-confetti-hook'
+import { confettiPresets } from '@cocopalm/canvas-confetti-hook'
 
 interface PresetSectionProps {
   activePreset: string | null

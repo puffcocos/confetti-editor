@@ -17,15 +17,15 @@ importers:
 
   apps/editor:
     dependencies:
+      '@cocopalm/canvas-confetti-hook':
+        specifier: workspace:*
+        version: link:../../packages/canvas-confetti-hook
       '@react-router/node':
         specifier: ^7.9.2
         version: 7.9.6(react-router@7.9.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)
       '@react-router/serve':
         specifier: ^7.9.2
         version: 7.9.6(react-router@7.9.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)
-      canvas-confetti-hook:
-        specifier: workspace:*
-        version: link:../../packages/canvas-confetti-hook
       gh-pages:
         specifier: ^6.3.0
         version: 6.3.0

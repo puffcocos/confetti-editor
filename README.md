@@ -140,7 +140,7 @@ fire(confettiPresets.schoolPride) // 학교 프라이드
 ```
 confetti-editor/
 ├── packages/
-│   └── canvas-confetti-hook/      # 💎 npm 패키지
+│   └── canvas-confetti-hook/      # 💎 npm 패키지 (@cocopalm/canvas-confetti-hook)
 │       ├── src/
 │       │   ├── use-confetti.ts    # 메인 훅 (fire, createShape, setConfettiCanvasRef)
 │       │   ├── presets.ts         # 8가지 프리셋 정의

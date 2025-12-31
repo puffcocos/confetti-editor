@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useConfetti } from 'canvas-confetti-hook'
+import { useConfetti } from '@cocopalm/canvas-confetti-hook'
 
 type EffectMode = 'fire' | 'fireFrame'
 

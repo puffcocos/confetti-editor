@@ -1,4 +1,4 @@
-import type { ConfettiOptions } from 'canvas-confetti-hook'
+import type { ConfettiOptions } from '@cocopalm/canvas-confetti-hook'
 
 /**
  * 에디터 전용 ConfettiOptions 확장 타입
